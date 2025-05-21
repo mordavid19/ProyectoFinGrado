@@ -8,7 +8,7 @@ Aplicacion de Gym
 - [Instalación](#-instalación)
 
 ## ✨ Características
-- En este repositorio si alguien quiere subir un cambio primero tiene que hacer una rama para poder verificar que no hay conflictos y luego ya poder subirlo.
+- En este repositorio si alguien quiere subir un cambio primero tiene que hacer una rama y luego una pull para poder verificar que no hay conflictos y luego ya poder subirlo.
 
 ## 📦 Instalación
 
