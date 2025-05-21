@@ -1,0 +1,252 @@
+body {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: url('img/fondoPagina.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.login-container {
+  background: rgba(0, 0, 0, 0.5); /* negro con 50% de opacidad */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  width: 300px;
+  text-align: center;
+  color: #fff;
+}
+
+.login-container h2 {
+  margin-bottom: 1rem;
+  font-size: 24px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 0.5rem 0;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* Botón base */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón Iniciar sesión - naranja */
+.btn-login {
+  background: #ff6f61;
+}
+
+/* Botón Registrar - verde */
+
+
+.error-message {
+  color: #ff3b2e;
+  margin-top: 1rem;
+}
+
+/* Reset básico */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.grid-layout {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: url('img/fondo1.jpg') no-repeat center center fixed;
+    min-height: 100vh;}
+
+/* Header */
+.header {
+    background: #222;
+    color: white;
+    padding: 15px 30px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+/* Nav */
+.nav {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 15px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 5px;
+    background-color: #ff6f61;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.nav-link:hover {
+    background-color: #ff3b2f;
+}
+
+/* Main */
+.main-content {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.main-content h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.main-content p {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .header {
+        grid-template-columns: 1fr;
+        row-gap: 10px;
+    }
+
+    .nav {
+        justify-content: start;
+    }
+}
+
+.admin-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #ff6f61;
+    color: white;
+}
+
+.admin-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+.register-container {
+  background: rgba(0, 0, 0, 0.45);
+  padding: 2rem 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  width: 360px;
+  max-width: 90vw;
+  color: #fff;
+  box-sizing: border-box;
+  text-align: left;
+  font-weight: 600;
+  position: static;
+  left: auto;
+}
+
+.register-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ff6f61; /* un color naranja para que destaque */
+  letter-spacing: 1.2px;
+}
+
+.register-container label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  color: #eee;
+}
+
+.register-container input,
+.register-container select {
+  width: 100%;           /* sigue ocupando todo el ancho del contenedor */
+  padding: 6px 10px;     /* menos padding vertical para que sean más bajos */
+  margin-bottom: 0.8rem; /* espacio entre campos más pequeño */
+  font-size: 0.9rem;     /* texto un poco más pequeño */
+  border-radius: 6px;    /* bordes un poco más pequeños */
+  box-sizing: border-box;
+}
+.register-container input:focus {
+  outline: none;
+  box-shadow: 0 0 8px #ff6f61;
+}
+
+.register-container button {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 10px;
+  color: black;
+}
+
+
+.register-container button:hover {
+  background-color: #ff3b2e;
+  transform: translateY(-3px);
+}
+
+.register-container a {
+  display: block;
+  margin-top: 1.2rem;
+  color: #ff6f61;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.register-container a:hover {
+  color: #ff3b2e;
+}
+
