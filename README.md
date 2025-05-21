@@ -1,6 +1,6 @@
-# 📦 Nombre del Proyecto
+# 📦 Proyecto Fin Grado
 
-Breve descripción del proyecto, qué hace y por qué es útil/interesante.
+Aplicacion de Gym
 
 ## 📝 Tabla de Contenidos
 
