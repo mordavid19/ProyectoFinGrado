@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $rol = 'admin';
 
         // Primero: buscar en tabla staff
-        $sql_admin = "SELECT username, password, rol FROM staff WHERE username = ? AND rol = ?";
+        $sql_admin = "SELECT username, password, rol FROM Tr_Staff WHERE username = ? AND rol = ?";
         $stmt = $conn->prepare($sql_admin);
         $stmt->bind_param("ss", $usuario, $rol);
         $stmt->execute();

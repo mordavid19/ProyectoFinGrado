@@ -27,8 +27,9 @@ $resultado = $conn->query($sql);
     <nav class="nav">
         <a href="index.html" class="nav-link">Inicio</a>
         <a href="" class="nav-link">Alta Admin</a>
+        <a href="" class="nav-link">Consultar Observaciones</a>
         <a href="register.php" class="nav-link">Alta Usuario</a>
-        <a href="logout.php" class="nav-link">Cerrar sesión</a>
+        <a href="login.php" class="nav-link">Cerrar sesión</a>
     </nav>
 </header>
 
@@ -45,9 +46,8 @@ $resultado = $conn->query($sql);
                     <th>Email</th>
                     <th>Teléfono</th>
                     <th>Fecha de Registro</th>
-                    <th>Fecha de Inicio</th>
-                    <th>Fecha de Fin</th>
-                    <th>Tipo de Cuota</th>
+                    <th>Fecha de Inicio Pago</th>
+                    <th>Fecha de Fin Pago </th>
                 </tr>
             </thead>
             <tbody>
@@ -60,9 +60,8 @@ $resultado = $conn->query($sql);
                             <td><?= htmlspecialchars($row['Email']) ?></td>
                             <td><?= htmlspecialchars($row['Telefono']) ?></td>
                             <td><?= htmlspecialchars($row['Fecha_Registro']) ?></td>
-                            <td><?= htmlspecialchars($row['Fecha_Inicio']) ?></td>
-                            <td><?= htmlspecialchars($row['Fecha_Fin']) ?></td>
-                            <td><?= htmlspecialchars($row['Tipo_Membresia']) ?></td>
+                            <td><?= htmlspecialchars($row['Pago']) ?></td>
+                            <td><?= htmlspecialchars($row['Fin_Pago']) ?></td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
