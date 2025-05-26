@@ -1,31 +1,81 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gimnasio FitnessPro</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gimnasio FitnessPro</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="grid-layout">
+<body>
 
-<header class="header">
+  <header class="header">
     <h1 class="logo">FitnessPro</h1>
     <nav class="nav">
-        <a href="register.php" class="nav-link">Date de alta</a>
-        <a href="login.php" class="nav-link">Ya eres socio</a>
+      <a href="login.php" class="nav-link">Ya eres socio</a>
     </nav>
-</header>
+  </header>
 
-<main class="main-content">
+  <main class="main-content">
     <h2>Bienvenido a FitnessPro</h2>
     <p>
-        En FitnessPro te ofrecemos un ambiente moderno y motivador para alcanzar tus metas de salud y fitness. 
-        Únete a nuestra comunidad y disfruta de entrenadores profesionales, equipos de última generación y planes personalizados.
+      En FitnessPro te ofrecemos un ambiente moderno y motivador para alcanzar tus metas de salud y fitness.
+      Únete a nuestra comunidad y disfruta de entrenadores profesionales, equipos de última generación y planes personalizados.
     </p>
     <p>
-        ¿Listo para comenzar? ¡Date de alta ahora o inicia sesión si ya eres parte de nuestra familia!
+      ¿Listo para comenzar? ¡Date de alta ahora o inicia sesión si ya eres parte de nuestra familia!
     </p>
-</main>
+
+    <!-- Tarjetas de planes -->
+    <div class="pricing-row">
+      <div class="pricing-card">
+        <div class="pricing-header">CUOTA MENSUAL <span class="tooltip">?</span></div>
+        <div class="pricing-body">
+          <div class="price"><span class="amount">30,00€</span><span class="vat">IVA incluido</span></div>
+          <h3>Cuota mensual</h3>
+          <ul class="features">
+            <li>Sin permanencia</li>
+            <li>Empieza hoy mismo. Cuota prorrateada.</li>
+            <li>¿Dudas? Escríbenos a contacto@fitnesspro.es</li>
+          </ul>
+        </div>
+        <div class="pricing-footer">
+          <a href="register.php" class="cta-button">¡QUIERO ESTA!</a>
+        </div>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-header">CUOTA TRIMESTRAL <span class="tooltip">?</span></div>
+        <div class="pricing-body">
+          <div class="price"><span class="amount">90,00€</span><span class="vat">IVA incluido</span></div>
+          <h3>Cuota trimestral</h3>
+          <ul class="features">
+            <li>Ahorra 10%</li>
+            <li>Acceso ilimitado</li>
+            <li>Soporte preferente</li>
+          </ul>
+        </div>
+        <div class="pricing-footer">
+          <a href="register.php" class="cta-button">¡LA QUIERO!</a>
+        </div>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-header">CUOTA ANUAL <span class="tooltip">?</span></div>
+        <div class="pricing-body">
+          <div class="price"><span class="amount">150,00€</span><span class="vat">IVA incluido</span></div>
+          <h3>Cuota anual</h3>
+          <ul class="features">
+            <li>Ahorra 20%</li>
+            <li>Actividades Totalmente Gratis</li>
+            <li>Pack de bienvenida</li>
+          </ul>
+        </div>
+        <div class="pricing-footer">
+          <a href="register.php" class="cta-button">¡ME APUNTO!</a>
+        </div>
+      </div>
+    </div>
+  </main>
 
 </body>
 </html>
