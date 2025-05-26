@@ -7,7 +7,6 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
     exit();
 }
 
-
 // Obtener los usuarios
 $sql = "SELECT * FROM vista_usuarios";
 $resultado = $conn->query($sql);
@@ -17,63 +16,102 @@ $resultado = $conn->query($sql);
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - FitnessPro</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body class="grid-layout">
-
-<header class="header">
-    <h1 class="logo">Admin - FitnessPro</h1>
+<body>
+  <header class="header">
+    <h1 class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
     <nav class="nav">
+      <div class="nav-links">
         <a href="index.html" class="nav-link">Inicio</a>
-        <a href="" class="nav-link">Alta Admin</a>
-        <a href="" class="nav-link">Consultar Observaciones</a>
+        <a href="#" class="nav-link">Alta Admin</a>
+        <a href="#" class="nav-link">Consultar Observaciones</a>
         <a href="register.php" class="nav-link">Alta Usuario</a>
         <a href="login.php" class="nav-link">Cerrar sesión</a>
+      </div>
     </nav>
-</header>
+  </header>
 
-<main class="main-content">
+  <main class="admin-main-content">
     <h2>Usuarios Registrados</h2>
 
     <div class="admin-table-container">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>DNI</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Fecha de Registro</th>
-                    <th>Fecha de Inicio Pago</th>
-                    <th>Fecha de Fin Pago </th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($resultado->num_rows > 0): ?>
-                    <?php while ($row = $resultado->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['Nombre']) ?></td>
-                            <td><?= htmlspecialchars($row['Apellidos']) ?></td>
-                            <td><?= htmlspecialchars($row['DNI']) ?></td>
-                            <td><?= htmlspecialchars($row['Email']) ?></td>
-                            <td><?= htmlspecialchars($row['Telefono']) ?></td>
-                            <td><?= htmlspecialchars($row['Fecha_Registro']) ?></td>
-                            <td><?= htmlspecialchars($row['Pago']) ?></td>
-                            <td><?= htmlspecialchars($row['Fin_Pago']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="5">No hay usuarios registrados.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Fecha de Registro</th>
+            <th>Fecha de Inicio Pago</th>
+            <th>Fecha de Fin Pago</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if ($resultado->num_rows > 0): ?>
+            <?php while ($row = $resultado->fetch_assoc()): ?>
+              <tr>
+                <td><?= htmlspecialchars($row['Nombre']) ?></td>
+                <td><?= htmlspecialchars($row['Apellidos']) ?></td>
+                <td><?= htmlspecialchars($row['DNI']) ?></td>
+                <td><?= htmlspecialchars($row['Email']) ?></td>
+                <td><?= htmlspecialchars($row['Telefono']) ?></td>
+                <td>
+                  <?php
+                  $fecha_registro = DateTime::createFromFormat('d m Y', $row['Fecha_Registro']);
+                  if ($fecha_registro !== false) {
+                      echo htmlspecialchars($fecha_registro->format('d-m-Y'));
+                  } else {
+                      echo 'N/A';
+                  }
+                  ?>
+                </td>
+                <td>
+                  <?php
+                  $fecha_pago = DateTime::createFromFormat('d m Y', $row['Pago']);
+                  if ($fecha_pago !== false) {
+                      echo htmlspecialchars($fecha_pago->format('d-m-Y'));
+                  } else {
+                      echo 'N/A';
+                  }
+                  ?>
+                </td>
+                <td>
+                  <?php
+                  $fecha_fin_pago = DateTime::createFromFormat('d m Y', $row['Fin_Pago']);
+                  if ($fecha_fin_pago !== false) {
+                      echo htmlspecialchars($fecha_fin_pago->format('d-m-Y'));
+                  } else {
+                      echo 'N/A';
+                  }
+                  ?>
+                </td>
+              </tr>
+            <?php endwhile; ?>
+          <?php else: ?>
+            <tr>
+              <td colspan="8">No hay usuarios registrados.</td>
+            </tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
     </div>
-</main>
+  </main>
 
+  <footer class="footer">
+    <p>© 2025 FitnessPro. Todos los derechos reservados.</p>
+    <div class="social-links">
+      <a href="#"><img src="img/facebook.png" alt="Facebook"></a>
+      <a href="#"><img src="img/instagram.png" alt="Instagram"></a>
+      <a href="#"><img src="img/twitter.png" alt="Twitter"></a>
+    </div>
+    <p><a href="contact.html">Contacto</a> | <a href="terms.html">Términos y Condiciones</a></p>
+  </footer>
 </body>
 </html>
 
