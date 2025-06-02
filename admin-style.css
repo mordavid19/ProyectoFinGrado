@@ -182,4 +182,12 @@
       padding: 10px;
       font-size: 0.9rem;
     }
+    .admin-table-container {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+
+
+    
   }

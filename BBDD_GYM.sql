@@ -136,22 +136,18 @@ DELIMITER //
 
 CREATE PROCEDURE Renovar_Pagos(
     IN _id_usuario INT,
-    IN _cantidadPago INT,
-    out _resultado int
+    IN _cantidadPago INT
+
 )
 BEGIN
     DECLARE _fecha_fin DATETIME;
     
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SET _resultado = -4; -- Error inesperado
-    END;
     -- Calcular la fecha de finalización según la cantidad de pago
     IF _cantidadPago = 30 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 MONTH);
     ELSEIF _cantidadPago = 90 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 3 MONTH);
-    ELSEIF _cantidadPago = 120 THEN
+    ELSEIF _cantidadPago = 150 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 YEAR);
     ELSE
         -- Por defecto, usar proporcional: cada 30 unidades = 1 mes
@@ -170,7 +166,6 @@ BEGIN
         _cantidadPago,
         _id_usuario
     );
-    set _resultado = 0;
 END;
 //
 
@@ -319,7 +314,7 @@ select usr.nombre as Nombre,
 from Tr_Usuarios as usr 
 left join Tr_Pagos as pag on(usr.id_usuario = pag.id_usuario);
 
-CREATE OR REPLACE VIEW vista_Rutinas AS
+CREATE  VIEW vista_Rutinas AS
 SELECT 
     u.id_usuario,
     CONCAT(u.nombre, ' ', u.apellido1, ' ', u.apellido2) AS nombre_completo,
@@ -336,6 +331,19 @@ JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
 JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
 JOIN Tm_Grupos_Musculares gm ON e.id_grupo_muscular = gm.id_grupo_muscular;
 
+
+Create view vista_observaciones as
+
+	select usu.email as Correo_Usuario,
+			obs.id_observacion as ID,
+            obs.titulo AS Titulo,
+            obs.descripcion as Descripcion,
+            obs.fecha_incidencia as Fecha_Incidencia,
+            tipinc.nombre as Tipo
+	from Tr_usuarios usu
+	inner join Tr_observaciones obs on (usu.id_usuario = obs.id_usuario)
+	inner join Tr_Staff staff on(obs.id_staff = staff.id_staff)
+	inner join Tm_tipo_incidencias tipinc on(obs.id_tipo_incidencia=tipinc.id_tipo_incidencia);
 
 
 insert into Tr_staff (username,password,rol)
