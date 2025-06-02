@@ -132,8 +132,49 @@ create table Tr_Observaciones(id_observacion smallint auto_increment primary key
                             foreign key (id_staff) references Tr_Staff(id_staff)
 							);
 
+DELIMITER //
 
+CREATE PROCEDURE Renovar_Pagos(
+    IN _id_usuario INT,
+    IN _cantidadPago INT,
+    out _resultado int
+)
+BEGIN
+    DECLARE _fecha_fin DATETIME;
+    
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET _resultado = -4; -- Error inesperado
+    END;
+    -- Calcular la fecha de finalización según la cantidad de pago
+    IF _cantidadPago = 30 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 MONTH);
+    ELSEIF _cantidadPago = 90 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 3 MONTH);
+    ELSEIF _cantidadPago = 120 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 YEAR);
+    ELSE
+        -- Por defecto, usar proporcional: cada 30 unidades = 1 mes
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL FLOOR(_cantidadPago / 30) MONTH);
+    END IF;
 
+    -- Insertar el pago
+    INSERT INTO Tr_Pagos (
+        fecha_pago,
+        fecha_fin_pago,
+        cantidad,
+        id_usuario
+    ) VALUES (
+        NOW(),
+        _fecha_fin,
+        _cantidadPago,
+        _id_usuario
+    );
+    set _resultado = 0;
+END;
+//
+
+DELIMITER ;
 
 
 DELIMITER //
@@ -148,13 +189,12 @@ CREATE PROCEDURE Registro_Usuario(
     IN _telefono INT,
     IN _fecha_nacimiento DATE,
     IN _genero CHAR(1),
+    IN _cantidadPago int,
     OUT _resultado INT
 )
 BEGIN
     DECLARE edad INT;
-
-    -- Bloque principal etiquetado
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    DECLARE _id_usuario INT;
     BEGIN
         SET _resultado = -4; -- Error inesperado
     END;
@@ -197,7 +237,11 @@ BEGIN
             _nombre, _apellido1, _apellido2, _dni, _password,
             _email, _telefono, _fecha_nacimiento, _genero
         );
+        
+         SET _id_usuario = LAST_INSERT_ID();
 
+        CALL Renovar_Pagos(_id_usuario, _cantidadPago);
+  
         SET _resultado = 0; -- Éxito
 
     END main;
@@ -207,20 +251,59 @@ END;
 
 DELIMITER ;
 
+
+
 DELIMITER //
 
-create procedure Registrar_Admin(in _nombreUsuario varchar(50),
-								in _password varchar(255),
-                                in _rol varchar(15),
-                                out _resultado int)
+CREATE PROCEDURE Registrar_Admin(
+    IN _nombreUsuario VARCHAR(50),
+    IN _password VARCHAR(255),
+    IN _rol VARCHAR(15),
+    OUT _resultado INT
+)
 BEGIN
+    DECLARE _existe INT;
 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET _resultado = -4; -- Error inesperado
+    END;
 
+    -- Validar campos obligatorios
+    IF _nombreUsuario IS NULL OR _nombreUsuario = '' OR
+       _password IS NULL OR _password = '' OR
+       _rol IS NULL OR _rol = '' THEN
+        SET _resultado = -1; -- Campos requeridos faltantes
 
-END ;
+    ELSEIF _rol NOT IN ('admin', 'monitor') THEN
+        SET _resultado = -2; -- Rol inválido
 
+    ELSE
+        -- Verificar si el nombre de usuario ya existe
+        SELECT COUNT(*) INTO _existe
+        FROM Tr_Staff
+        WHERE username = _nombreUsuario;
+
+        IF _existe > 0 THEN
+            SET _resultado = -3; -- Usuario duplicado
+        ELSE
+            -- Insertar nuevo registro en Tr_Staff
+            INSERT INTO Tr_Staff (
+                username, password, rol
+            ) VALUES (
+                _nombreUsuario, _password, _rol
+            );
+
+            SET _resultado = 0; -- Éxito
+        END IF;
+    END IF;
+
+END;
+//
 
 DELIMITER ;
+
+
 
 
 create view vista_Usuarios as 
@@ -232,11 +315,12 @@ select usr.nombre as Nombre,
         usr.activo as Activo,
         date_format(usr.fecha_registro,"%e %c %Y") as Fecha_Registro,
         date_format(pag.fecha_pago,"%e %c %Y") as Pago,
-		date_format(pag.fecha_fin_pago,"%e %c %Y") AS Fin_Pago;
-
+		date_format(pag.fecha_fin_pago,"%e %c %Y") AS Fin_Pago
+from Tr_Usuarios as usr 
+left join Tr_Pagos as pag on(usr.id_usuario = pag.id_usuario);
 
 CREATE OR REPLACE VIEW vista_Rutinas AS
-SELECT
+SELECT 
     u.id_usuario,
     CONCAT(u.nombre, ' ', u.apellido1, ' ', u.apellido2) AS nombre_completo,
     d.nombre AS dia,
@@ -251,12 +335,6 @@ JOIN Tm_Dias d ON r.id_dia = d.id_dia
 JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
 JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
 JOIN Tm_Grupos_Musculares gm ON e.id_grupo_muscular = gm.id_grupo_muscular;
-
-
-
-
-
-               
 
 
 
