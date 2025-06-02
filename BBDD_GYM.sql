@@ -25,6 +25,18 @@ create table Tm_Horarios(id_horario smallint auto_increment primary key ,
                         
 create table Tm_Tipo_Incidencias(id_tipo_incidencia smallint auto_increment primary key,
 								nombre varchar(20)not null);
+                                
+create table Tm_Dias(id_dia smallint primary key  auto_increment,
+					nombre varchar(20) not null);
+                    
+create table Tm_Grupos_Musculares(id_grupo_muscular smallint primary key auto_increment,
+									nombre varchar(30) not null);
+                                    
+                                    
+create table Tr_Ejercicios(id_ejercicio smallint primary key auto_increment,
+							nombre varchar(40)not null,
+                            id_grupo_muscular smallint not null,
+                            foreign key (id_grupo_muscular) references Tm_Grupos_Musculares(id_grupo_muscular));
 -- Tabla: Usuarios
 CREATE TABLE Tr_Usuarios (
     id_usuario smallint AUTO_INCREMENT PRIMARY KEY,
@@ -40,6 +52,43 @@ CREATE TABLE Tr_Usuarios (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
     activo boolean default 1 not null
 );
+
+create table Tr_Rutinas(id_rutina smallint primary key auto_increment,
+						id_usuario smallint not null,
+                        id_dia smallint not null,
+                        foreign key (id_usuario)references Tr_Usuarios(id_usuario),
+                        foreign key (id_dia) references Tm_DIas(id_dia)
+);
+
+
+
+CREATE TABLE Tr_Detalle_Rutina (
+    id_detalle smallint AUTO_INCREMENT PRIMARY KEY,
+    id_rutina smallint not null,
+    id_ejercicio smallint not null,
+    series INT not null,
+    repeticiones INT not null,
+    peso DECIMAL(5,2) not null,
+    FOREIGN KEY (id_rutina) REFERENCES Tr_Rutinas(id_rutina),
+    FOREIGN KEY (id_ejercicio) REFERENCES Tr_Ejercicios(id_ejercicio)
+);
+
+create table Tr_Pesos(id_peso smallint primary key auto_increment,
+					peso decimal(5,2) not null,
+                    fecha_peso timestamp not null,
+                    id_usuario smallint not null);
+
+
+create table Tr_Usuarios_Pesos(id_usuario_peso smallint primary key auto_increment,
+								id_peso smallint not null,
+                                id_usuario smallint not null,
+                                foreign key (id_peso)references Tr_Pesos(id_peso),
+                                foreign key (id_usuario)references Tr_Usuarios (id_usuario));
+                                
+                                
+                                
+                                
+                                
 
 create table Tr_Pagos(id_pago smallint auto_increment primary key,
 					fecha_pago timestamp not null,
@@ -67,7 +116,7 @@ CREATE TABLE Tr_Staff (
     id_staff smallint AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    rol enum("admin","monitor")
+    rol enum("admin","monitor") not null
 );
 
 
@@ -83,8 +132,49 @@ create table Tr_Observaciones(id_observacion smallint auto_increment primary key
                             foreign key (id_staff) references Tr_Staff(id_staff)
 							);
 
+DELIMITER //
 
+CREATE PROCEDURE Renovar_Pagos(
+    IN _id_usuario INT,
+    IN _cantidadPago INT,
+    out _resultado int
+)
+BEGIN
+    DECLARE _fecha_fin DATETIME;
+    
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET _resultado = -4; -- Error inesperado
+    END;
+    -- Calcular la fecha de finalización según la cantidad de pago
+    IF _cantidadPago = 30 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 MONTH);
+    ELSEIF _cantidadPago = 90 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 3 MONTH);
+    ELSEIF _cantidadPago = 120 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 YEAR);
+    ELSE
+        -- Por defecto, usar proporcional: cada 30 unidades = 1 mes
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL FLOOR(_cantidadPago / 30) MONTH);
+    END IF;
 
+    -- Insertar el pago
+    INSERT INTO Tr_Pagos (
+        fecha_pago,
+        fecha_fin_pago,
+        cantidad,
+        id_usuario
+    ) VALUES (
+        NOW(),
+        _fecha_fin,
+        _cantidadPago,
+        _id_usuario
+    );
+    set _resultado = 0;
+END;
+//
+
+DELIMITER ;
 
 
 DELIMITER //
@@ -99,59 +189,122 @@ CREATE PROCEDURE Registro_Usuario(
     IN _telefono INT,
     IN _fecha_nacimiento DATE,
     IN _genero CHAR(1),
+    IN _cantidadPago int,
     OUT _resultado INT
 )
 BEGIN
     DECLARE edad INT;
+    DECLARE _id_usuario INT;
+    BEGIN
+        SET _resultado = -4; -- Error inesperado
+    END;
 
-    -- Código de resultado:
-    -- 0 = Éxito
-    -- 1 = Faltan campos obligatorios
-    -- 2 = Edad menor a 16
-    -- 3 = Email inválido (sin @)
+    main: BEGIN
 
-    -- 1. Validar campos vacíos o nulos
-    IF _nombre IS NULL OR _nombre = '' OR
-       _apellido1 IS NULL OR _apellido1 = '' OR
-       _apellido2 IS NULL OR _apellido2 = '' OR
-       _dni IS NULL OR _dni = '' OR
-       _password IS NULL OR _password = '' OR
-       _email IS NULL OR _email = '' OR
-       _telefono IS NULL OR
-       _fecha_nacimiento IS NULL OR
-       _genero IS NULL OR _genero = ''
-    THEN
-        SET _resultado = -1; -- Campos vacíos
+        -- Validar campos obligatorios
+        IF _nombre IS NULL OR _nombre = '' OR
+           _apellido1 IS NULL OR _apellido1 = '' OR
+           _apellido2 IS NULL OR _apellido2 = '' OR
+           _dni IS NULL OR _dni = '' OR
+           _password IS NULL OR _password = '' OR
+           _email IS NULL OR _email = '' OR
+           _telefono IS NULL OR
+           _fecha_nacimiento IS NULL OR
+           _genero IS NULL OR _genero = '' THEN
+            SET _resultado = -1;
+            LEAVE main;
+        END IF;
 
-    END IF;
+        -- Validar edad mínima
+        SET edad = TIMESTAMPDIFF(YEAR, _fecha_nacimiento, CURDATE());
+        IF edad < 16 THEN
+            SET _resultado = -2;
+            LEAVE main;
+        END IF;
 
-    -- 2. Validar edad mínima (16 años)
-    SET edad = TIMESTAMPDIFF(YEAR, _fecha_nacimiento, CURDATE());
-    IF edad < 16 THEN
-        SET _resultado = -2; -- Edad insuficiente
+        -- Validar email básico
+        IF LOCATE('@', _email) = 0 THEN
+            SET _resultado = -3;
+            LEAVE main;
+        END IF;
 
-    END IF;
+        -- Insertar usuario
+        INSERT INTO Tr_Usuarios (
+            nombre, apellido1, apellido2, dni, password,
+            email, telefono, fecha_nacimiento, genero
+        )
+        VALUES (
+            _nombre, _apellido1, _apellido2, _dni, _password,
+            _email, _telefono, _fecha_nacimiento, _genero
+        );
+        
+         SET _id_usuario = LAST_INSERT_ID();
 
-    -- 3. Validar formato básico de email
-    IF LOCATE('@', _email) = 0 THEN
-        SET _resultado = -3; -- Email inválido
+        CALL Renovar_Pagos(_id_usuario, _cantidadPago);
+  
+        SET _resultado = 0; -- Éxito
 
-    END IF;
+    END main;
 
-    -- 4. Si todo está bien, insertar el registro
-    INSERT INTO Tr_Usuarios (
-        nombre, apellido1, apellido2, dni, password,
-        email, telefono, fecha_nacimiento, genero
-    )
-    VALUES (
-        _nombre, _apellido1, _apellido2, _dni, _password,
-        _email, _telefono, _fecha_nacimiento, _genero
-    );
-
-    SET _resultado = 0; -- Éxito
 END;
+//
 
 DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE Registrar_Admin(
+    IN _nombreUsuario VARCHAR(50),
+    IN _password VARCHAR(255),
+    IN _rol VARCHAR(15),
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE _existe INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET _resultado = -4; -- Error inesperado
+    END;
+
+    -- Validar campos obligatorios
+    IF _nombreUsuario IS NULL OR _nombreUsuario = '' OR
+       _password IS NULL OR _password = '' OR
+       _rol IS NULL OR _rol = '' THEN
+        SET _resultado = -1; -- Campos requeridos faltantes
+
+    ELSEIF _rol NOT IN ('admin', 'monitor') THEN
+        SET _resultado = -2; -- Rol inválido
+
+    ELSE
+        -- Verificar si el nombre de usuario ya existe
+        SELECT COUNT(*) INTO _existe
+        FROM Tr_Staff
+        WHERE username = _nombreUsuario;
+
+        IF _existe > 0 THEN
+            SET _resultado = -3; -- Usuario duplicado
+        ELSE
+            -- Insertar nuevo registro en Tr_Staff
+            INSERT INTO Tr_Staff (
+                username, password, rol
+            ) VALUES (
+                _nombreUsuario, _password, _rol
+            );
+
+            SET _resultado = 0; -- Éxito
+        END IF;
+    END IF;
+
+END;
+//
+
+DELIMITER ;
+
+
+
 
 create view vista_Usuarios as 
 select usr.nombre as Nombre,
@@ -159,14 +312,29 @@ select usr.nombre as Nombre,
         usr.dni as DNI,
 		usr.email AS Email,
         usr.telefono as Telefono,
-         date_format(usr.fecha_registro,"%e %c %Y") as Fecha_Registro,
+        usr.activo as Activo,
+        date_format(usr.fecha_registro,"%e %c %Y") as Fecha_Registro,
         date_format(pag.fecha_pago,"%e %c %Y") as Pago,
-		 date_format(pag.fecha_fin_pago,"%e %c %Y") AS Fin_Pago
-        
-        
-from Tr_usuarios usr
-left join tr_pagos pag on (usr.id_usuario = id_pago);
+		date_format(pag.fecha_fin_pago,"%e %c %Y") AS Fin_Pago
+from Tr_Usuarios as usr 
+left join Tr_Pagos as pag on(usr.id_usuario = pag.id_usuario);
 
+CREATE OR REPLACE VIEW vista_Rutinas AS
+SELECT 
+    u.id_usuario,
+    CONCAT(u.nombre, ' ', u.apellido1, ' ', u.apellido2) AS nombre_completo,
+    d.nombre AS dia,
+    e.nombre AS ejercicio,
+    gm.nombre AS grupo_muscular,
+    dr.series,
+    dr.repeticiones,
+    dr.peso
+FROM Tr_Usuarios u
+JOIN Tr_Rutinas r ON u.id_usuario = r.id_usuario
+JOIN Tm_Dias d ON r.id_dia = d.id_dia
+JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
+JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
+JOIN Tm_Grupos_Musculares gm ON e.id_grupo_muscular = gm.id_grupo_muscular;
 
 
 
@@ -193,7 +361,59 @@ VALUES
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5);
 
 
+INSERT INTO Tm_Actividades (nombre) VALUES
+('Spinning'), ('CrossFit'), ('Yoga'), ('Zumba'), ('Boxeo');
 
+INSERT INTO Tm_Horarios (hora) VALUES
+('07:00:00'), ('09:00:00'), ('12:00:00'), ('17:00:00'), ('19:00:00');
+
+INSERT INTO Tm_Tipo_Incidencias (nombre) VALUES
+('Queja'), ('Averia'), ('Recomendacion'), ('Otro');
+
+INSERT INTO Tm_Dias (nombre) VALUES
+('Lunes'), ('Martes'), ('Miércoles'), ('Jueves'), ('Viernes'), ('Sábado'), ('Domingo');
+
+INSERT INTO Tm_Grupos_Musculares (nombre) VALUES
+('Pecho'), ('Espalda'), ('Piernas'), ('Bíceps'), ('Tríceps'), ('Hombros'), ('Core');
+
+INSERT INTO Tr_Ejercicios (nombre, id_grupo_muscular) VALUES
+('Press banca plano', 1),
+('Remo con barra', 2),
+('Sentadilla libre', 3),
+('Curl bíceps con mancuerna', 4),
+('Fondos en paralelas', 5),
+('Press militar', 6),
+('Crunch abdominal', 7);
+
+
+INSERT INTO Tr_Rutinas (id_usuario, id_dia) VALUES
+(1, 1),
+(2, 2);
+
+INSERT INTO Tr_Detalle_Rutina (id_rutina, id_ejercicio, series, repeticiones, peso) VALUES
+(1, 1, 4, 10, 80.00),
+(1, 5, 3, 12, 50.00),
+(2, 2, 4, 10, 60.00),
+(2, 4, 3, 15, 10.00);
+
+INSERT INTO Tr_Pesos (peso, fecha_peso, id_usuario) VALUES
+(78.5, NOW(), 1),
+(64.2, NOW(), 2);
+
+INSERT INTO Tr_Usuarios_Pesos (id_peso, id_usuario) VALUES
+(1, 1),
+(2, 2);
+
+
+
+INSERT INTO Tr_Usuario_Actividades (id_actividad, id_horario, id_usuario) VALUES
+(1, 1, 1),
+(3, 2, 2);
+
+
+INSERT INTO Tr_Observaciones (titulo, descripcion, id_tipo_incidencia, fecha_incidencia, id_usuario, id_staff) VALUES
+('Falta clase', 'El usuario no asistió a su clase del lunes.', 2, NOW(), 1, 1),
+('Dolor lumbar', 'El usuario reportó molestia después del remo.', 1, NOW(), 2, 1);
 
 
 
