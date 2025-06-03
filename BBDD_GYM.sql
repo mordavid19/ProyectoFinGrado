@@ -91,7 +91,7 @@ create table Tr_Usuarios_Pesos(id_usuario_peso smallint primary key auto_increme
                                 
 
 create table Tr_Pagos(id_pago smallint auto_increment primary key,
-					fecha_pago timestamp not null,
+					fecha_pago timestamp ,
                     fecha_fin_pago datetime not null,
                     cantidad int not null,
                     id_usuario smallint not null,
@@ -345,6 +345,43 @@ Create view vista_observaciones as
 	inner join Tr_Staff staff on(obs.id_staff = staff.id_staff)
 	inner join Tm_tipo_incidencias tipinc on(obs.id_tipo_incidencia=tipinc.id_tipo_incidencia);
 
+DELIMITER //
+
+DELIMITER //
+
+CREATE EVENT IF NOT EXISTS RenovarPagosPrueba
+ON SCHEDULE EVERY 1 MINUTE
+DO
+BEGIN
+    -- 1. Renovar pagos vencidos de usuarios activos
+    UPDATE Tr_Pagos p
+    JOIN Tr_Usuarios u ON p.id_usuario = u.id_usuario
+    SET
+        p.fecha_fin_pago = DATE_ADD(NOW(), INTERVAL TIMESTAMPDIFF(DAY, p.fecha_pago, p.fecha_fin_pago) DAY),
+        p.fecha_pago = NOW()
+    WHERE
+        p.fecha_fin_pago <= NOW()
+        AND u.activo = 1;
+
+    -- 2. Anular solo fecha_pago de usuarios inactivos con pagos vencidos
+    UPDATE Tr_Pagos p
+    JOIN Tr_Usuarios u ON p.id_usuario = u.id_usuario
+    SET
+        p.fecha_pago = NULL
+    WHERE
+        p.fecha_fin_pago <= NOW()
+        AND u.activo = 0;
+END;
+//
+
+DELIMITER ;
+
+
+
+
+
+
+
 
 insert into Tr_staff (username,password,rol)
 values
@@ -362,9 +399,9 @@ VALUES
 -- Pagos ficticios para usuarios existentes
 INSERT INTO Tr_Pagos (fecha_pago, fecha_fin_pago, cantidad, id_usuario)
 VALUES 
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 1),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 2),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 3),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 1),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 2),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 3),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 4),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5);
 
