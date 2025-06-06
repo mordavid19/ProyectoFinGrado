@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
 
             if ($resultado == 0) {
-                header("Location: index.html");
+                header("Location: login.php");
                 exit();
             } elseif ($resultado == -1) {
                 $error_message = "Error: Campos vacíos.";

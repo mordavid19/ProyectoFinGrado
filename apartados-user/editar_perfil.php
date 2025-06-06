@@ -1,35 +1,163 @@
+<?php
+session_start();
+include '../config.php';
+
+if (!isset($_SESSION['usuario'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+$dni = $_SESSION['usuario'];
+
+// Obtener datos del usuario actual
+$stmt = $conn->prepare("SELECT Nombre, Primer_Apellido, Segundo_Apellido, DNI, Contrasenna, Correo, Telefono, edad, Genero, Fecha_Registro FROM vista_Usuarios WHERE dni = ?");
+$stmt->bind_param("s", $dni);
+$stmt->execute();
+$result = $stmt->get_result();
+$usuario = $result->fetch_assoc();
+$stmt->close();
+
+if (!$usuario) {
+    echo "Usuario no encontrado.";
+    exit();
+}
+
+// Si se envió el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $telefono = trim($_POST['telefono']);
+    $nuevaPassword = $_POST['password'];
+
+    // Validación simple de email
+    if (strpos($email, '@') === false) {
+        $mensaje = "El correo electrónico debe contener '@'.";
+    } else {
+        // Si hay nueva contraseña, hashearla
+        $password_hash = null;
+        if (!empty($nuevaPassword)) {
+            $password_hash = password_hash($nuevaPassword, PASSWORD_DEFAULT);
+        }
+
+        // Llamada al procedimiento almacenado
+        $stmt = $conn->prepare("CALL Editar_Usuario(?, ?, ?, ?, @resultado)");
+        $pass_param = $password_hash ?? '';  // Si es null, enviar cadena vacía
+        $stmt->bind_param("sssi", $dni, $email, $pass_param, $telefono);
+        $stmt->execute();
+        $stmt->close();
+
+        // Obtener el valor de salida
+        $res = $conn->query("SELECT @resultado AS resultado")->fetch_assoc();
+        $resultado = $res['resultado'];
+
+        switch ($resultado) {
+            case 0:
+                $mensaje = "Datos actualizados correctamente.";
+                // Refrescar datos
+                $stmt = $conn->prepare("SELECT Nombre, Primer_Apellido, Segundo_Apellido, DNI, Contrasenna, Correo, Telefono, edad, Genero, Fecha_Registro FROM vista_Usuarios WHERE dni = ?");
+                $stmt->bind_param("s", $dni);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $usuario = $result->fetch_assoc();
+                $stmt->close();
+                break;
+            case -1:
+                $mensaje = "El correo no puede estar vacío.";
+                break;
+            case -3:
+                $mensaje = "El teléfono no puede estar vacío.";
+                break;
+            case -4:
+                $mensaje = "Formato de correo inválido.";
+                break;
+            case -5:
+                $mensaje = "Usuario no encontrado.";
+                break;
+            case -6:
+                $mensaje = "La nueva contraseña no puede ser igual a la actual.";
+                break;
+            default:
+                $mensaje = "Error desconocido.";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Editar Perfil - FitnessPro</title>
+  <title>Mi Perfil - FitnessPro</title>
   <link rel="stylesheet" href="../styleUsuario.css" />
 </head>
 <body>
+
   <header>
-    <a href="../InicioUsuario.php" class="volver-btn">Volver</a>
-    <h1 class="welcome-title">Modificar datos de usuario</h1>
-    <a href="../logout.php" class="logout-btn">Cerrar sesión</a>
+    <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
+    <h1 class="welcome-title">Mis datos</h1>
+    <a class="logout-btn" href="../logout.php">Cerrar sesión</a>
   </header>
 
-  <main class="main-layout" style="padding-top: 120px; justify-content: center;">
-    <div class="card" style="max-width: 400px; width: 100%;">
-      <form id="editProfileForm" action="updateProfile.php" method="POST">
-        <label for="name" style="display: block; font-weight: 700; margin-bottom: 6px;">Nombre:</label>
-        <input type="text" id="name" name="name" placeholder="Tu nombre" required style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em;" />
+  <main class="main-layout">
+    <div class="profile-view-container">
+      <h2>Datos del Usuario</h2>
 
-        <label for="email" style="display: block; font-weight: 700; margin-bottom: 6px;">Correo electrónico:</label>
-        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em;" />
+      <?php if (!empty($mensaje)): ?>
+        <div class="profile-field" style="color: green;"><?= htmlspecialchars($mensaje) ?></div>
+      <?php endif; ?>
 
-        <label for="password" style="display: block; font-weight: 700; margin-bottom: 6px;">Contraseña:</label>
-        <input type="password" id="password" name="password" placeholder="Nueva contraseña" style="width: 100%; padding: 10px; margin-bottom: 25px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em;" />
+      <form method="POST" action="">
+        <div class="profile-field">
+          <label class="profile-label">Nombre</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['Nombre']) ?></div>
+        </div>
 
-        <button type="submit" style="width: 100%; padding: 14px; background-color: #111; color: #fff; font-weight: 700; border: none; border-radius: 10px; font-size: 1.3em; cursor: pointer; transition: transform 0.2s ease;">
-          Guardar cambios
-        </button>
+        <div class="profile-field">
+          <label class="profile-label">Primer Apellido</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['Primer_Apellido']) ?></div>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label">Segundo Apellido</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['Segundo_Apellido']) ?></div>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label" for="email">Correo Electrónico</label>
+          <input class="profile-value" type="email" name="email" id="email" value="<?= htmlspecialchars($usuario['Correo']) ?>" required>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label" for="telefono">Teléfono</label>
+          <input class="profile-value" type="tel" name="telefono" id="telefono" value="<?= htmlspecialchars($usuario['Telefono']) ?>" required>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label" for="password">Contraseña</label>
+          <input class="profile-value" type="password" name="password" id="password" placeholder="Nueva contraseña">
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label">Edad</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['edad']) ?></div>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label">Sexo</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['Genero']) ?></div>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-label">Fecha de Registro</label>
+          <div class="profile-value"><?= htmlspecialchars($usuario['Fecha_Registro']) ?></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <button type="submit" id="generate-btn">Guardar cambios</button>
+        </div>
       </form>
     </div>
   </main>
+
 </body>
 </html>

@@ -298,10 +298,78 @@ END;
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE PROCEDURE Editar_Usuario(
+    IN _dni VARCHAR(9),
+    IN _email VARCHAR(100),
+    IN _password VARCHAR(255),
+    IN _telefono INT,
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE v_password_actual VARCHAR(255);
+    DECLARE v_count INT;
+
+    SET _resultado = 0; -- Éxito por defecto
+
+    -- Validar campos obligatorios
+    IF _email IS NULL OR _email = '' THEN
+        SET _resultado = -1; -- Email vacío
+    ELSEIF _telefono IS NULL THEN
+        SET _resultado = -3; -- Teléfono vacío
+    ELSEIF LOCATE('@', _email) = 0 THEN
+        SET _resultado = -4; -- Email inválido
+    ELSE
+        -- Verificar existencia del usuario
+        SELECT COUNT(*) INTO v_count FROM Tr_Usuarios WHERE dni = _dni;
+        IF v_count = 0 THEN
+            SET _resultado = -5; -- Usuario no encontrado
+        ELSE
+            -- Si se envió una contraseña, validar si es diferente
+            IF _password IS NOT NULL AND _password != '' THEN
+                SELECT password INTO v_password_actual FROM Tr_Usuarios WHERE dni = _dni;
+                IF v_password_actual = _password THEN
+                    SET _resultado = -6; -- Nueva contraseña igual a la actual
+                ELSE
+                    -- Actualizar todo (correo, teléfono y contraseña)
+                    UPDATE Tr_Usuarios
+                    SET email = _email,
+                        password = _password,
+                        telefono = _telefono
+                    WHERE dni = _dni;
+                END IF;
+            ELSE
+                -- Actualizar solo correo y teléfono
+                UPDATE Tr_Usuarios
+                SET email = _email,
+                    telefono = _telefono
+                WHERE dni = _dni;
+            END IF;
+        END IF;
+    END IF;
+
+END;
+//
+
+DELIMITER ;
+
+CREATE VIEW vista_Usuarios AS
+SELECT 
+    nombre AS Nombre,
+    apellido1 as Primer_Apellido,
+    apellido2 as Segundo_Apellido,
+    dni as DNI,
+    password AS Contrasenna,
+    email as Correo,
+    telefono as Telefono,
+	TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS edad,
+    genero as Genero,
+    fecha_registro as Fecha_Registro
+FROM Tr_Usuarios ;
 
 
-
-create view vista_Usuarios as 
+create view vista_Usuarios_Admin as 
 select usr.nombre as Nombre,
         concat(usr.apellido1,' ',usr.apellido2)as Apellidos,
         usr.dni as DNI,
