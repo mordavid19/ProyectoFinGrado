@@ -8,7 +8,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
 }
 
 // Obtener los usuarios
-$sql = "SELECT Nombre,Apellidos,DNI,Email,Telefono,Fecha_Registro,Pago,Fin_Pago FROM vista_usuarios where Activo = 1" ;
+$sql = "SELECT Nombre,Apellidos,DNI,Email,Telefono,Fecha_Registro,Pago,Fin_Pago FROM vista_usuarios_admin where Activo = 1" ;
 $resultado = $conn->query($sql);
 ?>
 
@@ -28,7 +28,7 @@ $resultado = $conn->query($sql);
       <div class="nav-links">
         <a href="index.html" class="nav-link">Inicio</a>
         <a href="Alta_Admin.php" class="nav-link">Alta Admin</a>
-        <a href="#" class="nav-link">Consultar Observaciones</a>
+        <a href="obsvcn_Admin" class="nav-link">Consultar Observaciones</a>
         <a href="register.php" class="nav-link">Alta Usuario</a>
         <a href="login.php" class="nav-link">Cerrar sesión</a>
       </div>

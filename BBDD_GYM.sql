@@ -75,8 +75,7 @@ CREATE TABLE Tr_Detalle_Rutina (
 
 create table Tr_Pesos(id_peso smallint primary key auto_increment,
 					peso decimal(5,2) not null,
-                    fecha_peso timestamp not null,
-                    id_usuario smallint not null);
+                    fecha_peso timestamp not null);
 
 
 create table Tr_Usuarios_Pesos(id_usuario_peso smallint primary key auto_increment,
@@ -91,7 +90,7 @@ create table Tr_Usuarios_Pesos(id_usuario_peso smallint primary key auto_increme
                                 
 
 create table Tr_Pagos(id_pago smallint auto_increment primary key,
-					fecha_pago timestamp not null,
+					fecha_pago timestamp ,
                     fecha_fin_pago datetime not null,
                     cantidad int not null,
                     id_usuario smallint not null,
@@ -136,22 +135,18 @@ DELIMITER //
 
 CREATE PROCEDURE Renovar_Pagos(
     IN _id_usuario INT,
-    IN _cantidadPago INT,
-    out _resultado int
+    IN _cantidadPago INT
+
 )
 BEGIN
     DECLARE _fecha_fin DATETIME;
     
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SET _resultado = -4; -- Error inesperado
-    END;
     -- Calcular la fecha de finalización según la cantidad de pago
     IF _cantidadPago = 30 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 MONTH);
     ELSEIF _cantidadPago = 90 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 3 MONTH);
-    ELSEIF _cantidadPago = 120 THEN
+    ELSEIF _cantidadPago = 150 THEN
         SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 YEAR);
     ELSE
         -- Por defecto, usar proporcional: cada 30 unidades = 1 mes
@@ -170,7 +165,6 @@ BEGIN
         _cantidadPago,
         _id_usuario
     );
-    set _resultado = 0;
 END;
 //
 
@@ -303,10 +297,122 @@ END;
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE PROCEDURE Editar_Usuario(
+    IN _dni VARCHAR(9),
+    IN _email VARCHAR(100),
+    IN _password VARCHAR(255),
+    IN _telefono INT,
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE v_password_actual VARCHAR(255);
+    DECLARE v_count INT;
+
+    SET _resultado = 0; -- Éxito por defecto
+
+    -- Validar campos obligatorios
+    IF _email IS NULL OR _email = '' THEN
+        SET _resultado = -1; -- Email vacío
+    ELSEIF _telefono IS NULL THEN
+        SET _resultado = -3; -- Teléfono vacío
+    ELSEIF LOCATE('@', _email) = 0 THEN
+        SET _resultado = -4; -- Email inválido
+    ELSE
+        -- Verificar existencia del usuario
+        SELECT COUNT(*) INTO v_count FROM Tr_Usuarios WHERE dni = _dni;
+        IF v_count = 0 THEN
+            SET _resultado = -5; -- Usuario no encontrado
+        ELSE
+            -- Si se envió una contraseña, validar si es diferente
+            IF _password IS NOT NULL AND _password != '' THEN
+                SELECT password INTO v_password_actual FROM Tr_Usuarios WHERE dni = _dni;
+                IF v_password_actual = _password THEN
+                    SET _resultado = -6; -- Nueva contraseña igual a la actual
+                ELSE
+                    -- Actualizar todo (correo, teléfono y contraseña)
+                    UPDATE Tr_Usuarios
+                    SET email = _email,
+                        password = _password,
+                        telefono = _telefono
+                    WHERE dni = _dni;
+                END IF;
+            ELSE
+                -- Actualizar solo correo y teléfono
+                UPDATE Tr_Usuarios
+                SET email = _email,
+                    telefono = _telefono
+                WHERE dni = _dni;
+            END IF;
+        END IF;
+    END IF;
+
+END;
+//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE Introducir_Pesos (
+    IN _dni VARCHAR(9),
+    IN _peso DECIMAL(5,2),
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE iduser SMALLINT;
+
+    -- Validación de parámetros
+    IF _dni IS NULL OR LENGTH(TRIM(_dni)) = 0 OR _peso IS NULL OR _peso <= 0 THEN
+        SET _resultado = -1; -- Parámetros inválidos
+    ELSE
+        -- Buscar ID del usuario por DNI
+        SELECT id_usuario INTO iduser
+        FROM Tr_usuarios
+        WHERE dni = _dni
+        LIMIT 1;
+
+        -- Verificar si se encontró el usuario
+        IF iduser IS NULL or iduser = "" THEN
+            SET _resultado = -2; -- Usuario no encontrado
+        ELSE
+            -- Insertar en tr_pesos
+            INSERT INTO tr_pesos (peso, fecha_peso)
+            VALUES (_peso, NOW());
+
+            -- Asociar al usuario
+            INSERT INTO tr_usuarios_pesos (id_usuario, id_peso)
+            VALUES (iduser, LAST_INSERT_ID());
+
+            SET _resultado = 0; -- Éxito
+        END IF;
+    END IF;
+END;
+//
+
+DELIMITER ;
 
 
 
-create view vista_Usuarios as 
+
+
+CREATE VIEW vista_Usuarios AS
+SELECT 
+    nombre AS Nombre,
+    apellido1 as Primer_Apellido,
+    apellido2 as Segundo_Apellido,
+    dni as DNI,
+    password AS Contrasenna,
+    email as Correo,
+    telefono as Telefono,
+	TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS edad,
+    genero as Genero,
+    fecha_registro as Fecha_Registro
+FROM Tr_Usuarios ;
+
+
+create view vista_Usuarios_Admin as 
 select usr.nombre as Nombre,
         concat(usr.apellido1,' ',usr.apellido2)as Apellidos,
         usr.dni as DNI,
@@ -319,7 +425,7 @@ select usr.nombre as Nombre,
 from Tr_Usuarios as usr 
 left join Tr_Pagos as pag on(usr.id_usuario = pag.id_usuario);
 
-CREATE OR REPLACE VIEW vista_Rutinas AS
+CREATE  VIEW vista_Rutinas AS
 SELECT 
     u.id_usuario,
     CONCAT(u.nombre, ' ', u.apellido1, ' ', u.apellido2) AS nombre_completo,
@@ -337,6 +443,80 @@ JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
 JOIN Tm_Grupos_Musculares gm ON e.id_grupo_muscular = gm.id_grupo_muscular;
 
 
+Create view vista_observaciones as
+
+	select usu.email as Correo_Usuario,
+			obs.id_observacion as ID,
+            obs.titulo AS Titulo,
+            obs.descripcion as Descripcion,
+            obs.fecha_incidencia as Fecha_Incidencia,
+            tipinc.nombre as Tipo
+	from Tr_usuarios usu
+	inner join Tr_observaciones obs on (usu.id_usuario = obs.id_usuario)
+	inner join Tr_Staff staff on(obs.id_staff = staff.id_staff)
+	inner join Tm_tipo_incidencias tipinc on(obs.id_tipo_incidencia=tipinc.id_tipo_incidencia);
+
+
+
+CREATE VIEW vista_pesos AS 
+SELECT 
+    usu.dni AS DNI,
+    pes.peso AS Peso,
+    DATE_FORMAT(pes.fecha_peso, "%e %c %Y") AS Fecha_Pesaje,
+    
+    -- Media por mes
+    AVG(pes.peso) OVER (
+        PARTITION BY usu.id_usuario, YEAR(pes.fecha_peso), MONTH(pes.fecha_peso)
+    ) AS Promedio_Mensual,
+
+    -- Media por año
+    AVG(pes.peso) OVER (
+        PARTITION BY usu.id_usuario, YEAR(pes.fecha_peso)
+    ) AS Promedio_Anual
+
+FROM Tr_usuarios AS usu
+INNER JOIN tr_usuarios_pesos usupeso ON usu.id_usuario = usupeso.id_usuario
+INNER JOIN tr_pesos pes ON usupeso.id_peso = pes.id_peso;
+
+
+
+
+
+DELIMITER //
+
+CREATE EVENT IF NOT EXISTS RenovarPagosPrueba
+ON SCHEDULE EVERY 1 MINUTE
+DO
+BEGIN
+    -- 1. Renovar pagos vencidos de usuarios activos
+    UPDATE Tr_Pagos p
+    JOIN Tr_Usuarios u ON p.id_usuario = u.id_usuario
+    SET
+        p.fecha_fin_pago = DATE_ADD(NOW(), INTERVAL TIMESTAMPDIFF(DAY, p.fecha_pago, p.fecha_fin_pago) DAY),
+        p.fecha_pago = NOW()
+    WHERE
+        p.fecha_fin_pago <= NOW()
+        AND u.activo = 1;
+
+    -- 2. Anular solo fecha_pago de usuarios inactivos con pagos vencidos
+    UPDATE Tr_Pagos p
+    JOIN Tr_Usuarios u ON p.id_usuario = u.id_usuario
+    SET
+        p.fecha_pago = NULL
+    WHERE
+        p.fecha_fin_pago <= NOW()
+        AND u.activo = 0;
+END;
+//
+
+DELIMITER ;
+
+
+
+
+
+
+
 
 insert into Tr_staff (username,password,rol)
 values
@@ -344,19 +524,21 @@ values
 
 INSERT INTO Tr_Usuarios (nombre, apellido1,apellido2,dni,password, email, telefono, fecha_nacimiento, genero)
 VALUES 
-('Carlos', 'Gonzalez','Gonzalez',"12345678A","$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO", 'carlos@gym.com', '123456789', '1990-05-12', 'M'),
+('Carlos', 'Gonzalez','Gonzalez',"12345678A","$2y$10$Vr6g8kDYXMWqPPLeV6iWj.M6IywpPsXmAXrfhnhhwyiSwhbv3qs8G", 'carlos@gym.com', '123456789', '1990-05-12', 'M'),
 ('Ana', 'Martinez','Gonzalez',"12345678B","$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO", 'ana@gym.com', '123123123', '1985-09-23', 'F'),
 ('Luis', 'Fernandez','Gonzalez',"12345678C", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'luis@gym.com', '321321432', '1993-01-30', 'M'),
 ('Maria', 'Lopez','Gonzalez',"12345678D", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'maria@gym.com', '555123456', '1997-11-11', 'F'),
-('Pedro', 'Ramirez','Gonzalez',"12345678F", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'pedro@gym.com', '444333222', '2000-07-07', 'M');
+('Pedro', 'Ramirez','Gonzalez',"12345678F", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'pedro@gym.com', '444333222', '2000-07-07', 'M'),
+("David","Belmonte","Moreno","71822694L","$2y$10$Vr6g8kDYXMWqPPLeV6iWj.M6IywpPsXmAXrfhnhhwyiSwhbv3qs8G","david@gmail.com","634512787","2005-10-19","M")
+;
 
 
 -- Pagos ficticios para usuarios existentes
 INSERT INTO Tr_Pagos (fecha_pago, fecha_fin_pago, cantidad, id_usuario)
 VALUES 
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 1),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 2),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 50, 3),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 1),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 2),
+  (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 3),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 4),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5);
 
@@ -396,9 +578,9 @@ INSERT INTO Tr_Detalle_Rutina (id_rutina, id_ejercicio, series, repeticiones, pe
 (2, 2, 4, 10, 60.00),
 (2, 4, 3, 15, 10.00);
 
-INSERT INTO Tr_Pesos (peso, fecha_peso, id_usuario) VALUES
-(78.5, NOW(), 1),
-(64.2, NOW(), 2);
+INSERT INTO Tr_Pesos (peso, fecha_peso) VALUES
+(78.5, NOW()),
+(64.2, NOW());
 
 INSERT INTO Tr_Usuarios_Pesos (id_peso, id_usuario) VALUES
 (1, 1),

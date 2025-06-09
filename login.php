@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Segundo: buscar en tabla usuarios
-        $sql_user = "SELECT dni, password FROM usuarios WHERE dni = ?";
+        $sql_user = "SELECT dni, password FROM Tr_Usuarios WHERE dni = ?";
         $stmt = $conn->prepare($sql_user);
         $stmt->bind_param("s", $usuario);
         $stmt->execute();
@@ -44,8 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($passwordIngresada, $hash)) {
                 // Contraseña correcta - cliente
                 $_SESSION['usuario'] = $usuario;
-                $_SESSION['rol'] = 'cliente';
-                header("Location: index.html");
+                header("Location: InicioUsuario.php");
                 exit();
             }
         }

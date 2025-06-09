@@ -3,6 +3,11 @@ include 'config.php';
 
 $error_message = '';
 
+$precioSeleccionado = 30;
+if (isset($_GET['precio']) && in_array((int)$_GET['precio'], [30, 90, 150])) {
+    $precioSeleccionado = (int)$_GET['precio'];
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Recoger datos del formulario
     $nombre = $_POST['nombre'];
@@ -14,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fecha_nacimiento = $_POST['fecha_nacimiento'];
     $genero = $_POST['genero'];
     $password = $_POST['password'];
+    $cantidadPago = isset($_POST['cantidadPago']) ? (int)$_POST['cantidadPago'] : 30;
 
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     $telefono_param = !empty($telefono) ? (int)$telefono : null;
@@ -21,14 +27,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Primero definimos la variable para el parámetro OUT
     $conn->query("SET @resultado = 0;");
 
-    $stmt = $conn->prepare("CALL Registro_Usuario(?, ?, ?, ?, ?, ?, ?, ?, ?, @resultado)");
+    $stmt = $conn->prepare("CALL Registro_Usuario(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @resultado)");
 
     if (!$stmt) {
         $error_message = "Error en la preparación: " . $conn->error;
     } else {
         // Bind de parámetros IN (9 parámetros)
         $stmt->bind_param(
-            "ssssssiss",
+            "ssssssissi",
             $nombre,
             $apellido1,
             $apellido2,
@@ -37,7 +43,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $email,
             $telefono_param,
             $fecha_nacimiento,
-            $genero
+            $genero,
+            $cantidadPago
         );
 
         if ($stmt->execute()) {
@@ -47,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
 
             if ($resultado == 0) {
-                header("Location: index.html");
+                header("Location: login.php");
                 exit();
             } elseif ($resultado == -1) {
                 $error_message = "Error: Campos vacíos.";
@@ -127,6 +134,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <span class="toggle-password">👁️</span>
         </div>
 
+          <label for="cantidadPago">Selecciona tu plan</label>
+          <select id="cantidadPago" name="cantidadPago" required>
+            <option value=""> Selcciona un Plan </option>
+            <option value="30" <?php if($precioSeleccionado == 30) echo 'selected'; ?>>Cuota mensual - 30€</option>
+            <option value="90" <?php if($precioSeleccionado == 90) echo 'selected'; ?>>Cuota trimestral - 90€</option>
+            <option value="150" <?php if($precioSeleccionado == 150) echo 'selected'; ?>>Cuota anual - 150€</option>
+          </select>
+
+
+
+          
         <button type="submit" class="btn-login">Registrarse</button>
         <p class="error-message"><?php echo $error_message; ?></p>
         <a href="login.php">¿Ya tienes cuenta? Inicia sesión aquí</a>
