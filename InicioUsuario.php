@@ -25,6 +25,7 @@ $usuario = $_SESSION['usuario']; // Aquí tienes el nombre o correo del usuario
   </header>
 
   <main class="main-layout">
+ 
     <div class="grid-container">
       <a href="apartados-user/editar_perfil.php" class="card">Editar perfil</a>
 
@@ -42,7 +43,7 @@ $usuario = $_SESSION['usuario']; // Aquí tienes el nombre o correo del usuario
 
       <div class="card">Ver dieta</div>
       <div class="card">Crear rutina</div>
-      <div class="card">Progreso de peso</div>
+      <a href="apartados-user/peso_usuario.php" class="card">Progreso de peso</a>
     </div>
   </main>
 

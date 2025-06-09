@@ -265,3 +265,94 @@ header {
     font-size: 1.6em;
   }
 }
+
+/* --- Estilos para formulario de ingreso de peso y tabla de historial --- */
+
+.form-container {
+    background: #ffffffcc;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    max-width: 300px;
+    width: 100%;
+    font-size: 1.2em;
+    color: #111;
+}
+
+.form-container h3 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.form-container input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    margin: 10px 0 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.form-container button:hover {
+    background-color: #555;
+}
+
+.table-container {
+    background: #ffffffcc;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    overflow-x: auto;
+    font-size: 1.1em;
+}
+
+.table-container h3 {
+    font-size: 1.8em;
+    text-align: center;
+    margin-top: 0;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.table-container th {
+    background-color: #f1f1f1;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .main-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .form-container, .table-container {
+        width: 100%;
+        max-width: 90%;
+    }
+}
