@@ -399,17 +399,19 @@ DELIMITER ;
 
 CREATE VIEW vista_Usuarios AS
 SELECT 
-    nombre AS Nombre,
-    apellido1 as Primer_Apellido,
-    apellido2 as Segundo_Apellido,
-    dni as DNI,
-    password AS Contrasenna,
-    email as Correo,
-    telefono as Telefono,
-	TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE()) AS edad,
-    genero as Genero,
-    fecha_registro as Fecha_Registro
-FROM Tr_Usuarios ;
+    usu.nombre AS Nombre,
+    usu.apellido1 as Primer_Apellido,
+    usu.apellido2 as Segundo_Apellido,
+    usu.dni as DNI,
+    usu.password AS Contrasenna,
+    usu.email as Correo,
+    usu.telefono as Telefono,
+	TIMESTAMPDIFF(YEAR, usu.fecha_nacimiento, CURDATE()) AS edad,
+    usu.genero as Genero,
+    usu.fecha_registro as Fecha_Registro,
+    pag.cantidad as Cantidad
+FROM Tr_Usuarios usu
+inner join Tr_Pagos pag on (usu.id_usuario = pag.id_usuario);
 
 
 create view vista_Usuarios_Admin as 
@@ -540,7 +542,8 @@ VALUES
   (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 2),
   (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 3),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 4),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5);
+  (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5),
+  (NOW(),date_add(now(), INTERVAL 3 MONTH),30 ,6);
 
 
 INSERT INTO Tm_Actividades (nombre) VALUES
