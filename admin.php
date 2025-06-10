@@ -8,7 +8,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
 }
 
 // Obtener los usuarios
-$sql = "SELECT * FROM vista_usuarios";
+$sql = "SELECT Nombre,Apellidos,DNI,Email,Telefono,Fecha_Registro,Pago,Fin_Pago FROM vista_usuarios_admin where Activo = 1" ;
 $resultado = $conn->query($sql);
 ?>
 
@@ -26,9 +26,9 @@ $resultado = $conn->query($sql);
     <h1 class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
     <nav class="nav">
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Inicio</a>
-        <a href="#" class="nav-link">Alta Admin</a>
-        <a href="#" class="nav-link">Consultar Observaciones</a>
+        <a href="index.php" class="nav-link">Inicio</a>
+        <a href="Alta_Admin.php" class="nav-link">Alta Admin</a>
+        <a href="obsvcn_Admin" class="nav-link">Consultar Observaciones</a>
         <a href="register.php" class="nav-link">Alta Usuario</a>
         <a href="login.php" class="nav-link">Cerrar sesión</a>
       </div>
@@ -103,15 +103,9 @@ $resultado = $conn->query($sql);
     </div>
   </main>
 
-  <footer class="footer">
-    <p>© 2025 FitnessPro. Todos los derechos reservados.</p>
-    <div class="social-links">
-      <a href="#"><img src="img/facebook.png" alt="Facebook"></a>
-      <a href="#"><img src="img/instagram.png" alt="Instagram"></a>
-      <a href="#"><img src="img/twitter.png" alt="Twitter"></a>
-    </div>
-    <p><a href="contact.html">Contacto</a> | <a href="terms.html">Términos y Condiciones</a></p>
-  </footer>
+<?php
+  include 'Abajo.php';
+?>
 </body>
 </html>
 

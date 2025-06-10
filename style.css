@@ -20,6 +20,9 @@ h1, h2, h3 {
 
 /* Header */
 .header {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
   background: linear-gradient(90deg, #ff6f61, #1e88e5);
   padding: 1.5rem;
   display: flex;
@@ -66,7 +69,7 @@ h1, h2, h3 {
 /* Main Content 1 (para index.html) */
 .main-content1 {
   background-color: #fff;
-  margin: 3rem auto;
+  margin: 10rem auto 3rem auto;
   padding: 3rem;
   border-radius: 10px;
   width: 90%;
