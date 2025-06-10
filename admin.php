@@ -103,15 +103,9 @@ $resultado = $conn->query($sql);
     </div>
   </main>
 
-  <footer class="footer">
-    <p>© 2025 FitnessPro. Todos los derechos reservados.</p>
-    <div class="social-links">
-      <a href="#"><img src="img/facebook.png" alt="Facebook"></a>
-      <a href="#"><img src="img/instagram.png" alt="Instagram"></a>
-      <a href="#"><img src="img/twitter.png" alt="Twitter"></a>
-    </div>
-    <p><a href="contact.html">Contacto</a> | <a href="terms.html">Términos y Condiciones</a></p>
-  </footer>
+<?php
+  include 'Abajo.php';
+?>
 </body>
 </html>
 

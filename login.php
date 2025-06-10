@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'config.php';
-
+include 'Arriba.php';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -67,18 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header class="header">
-    <h1 class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">FitnessPro</a></h1>
-    <nav class="nav">
-      <div class="hamburger">☰</div>
-      <div class="nav-links">
-        <a href="index.html" class="nav-link">Inicio</a>
-        <a href="plans.html" class="nav-link">Planes</a>
-        <a href="contact.html" class="nav-link">Contacto</a>
-        <a href="register.php" class="nav-link">Registrarse</a>
-      </div>
-    </nav>
-  </header>
 
   <main class="main-content2">
     <div class="login-container">
@@ -101,15 +89,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </main>
 
-  <footer class="footer">
-    <p>© 2025 FitnessPro. Todos los derechos reservados.</p>
-    <div class="social-links">
-      <a href="#">Facebook</a>
-      <a href="#">Instagram</a>
-      <a href="#">Twitter</a>
-    </div>
-    <p><a href="#">Contacto</a> | <a href="#">Términos y Condiciones</a></p>
-  </footer>
+<?php
+  include 'Abajo.php';
+?>
 
   <script src="script.js"></script>
   <script>
