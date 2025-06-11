@@ -541,6 +541,7 @@ h1, h2, h3 {
 
   .nav-links.active {
     display: flex;
+    margin-top: 50px;
   }
 
   .pricing-card {

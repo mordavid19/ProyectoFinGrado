@@ -66,14 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <header class="header">
-    <h1 class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">FitnessPro</a></h1>
+    <h1 class="logo"><a href="admin.php" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
     <nav class="nav">
-      <div class="hamburger">☰</div>
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Inicio</a>
-        <a href="plans.html" class="nav-link">Planes</a>
-        <a href="contact.html" class="nav-link">Contacto</a>
-        <a href="login.php" class="nav-link">Ya eres socio</a>
+        <a href="admin.php" class="nav-link">Inicio</a>
+        <a href="Alta_Admin.php" class="nav-link">Alta Admin</a>
+        <a href="obsvcn_Admin" class="nav-link">Consultar Observaciones</a>
+        <a href="register.php" class="nav-link">Alta Usuario</a>
+        <a href="login.php" class="nav-link">Cerrar sesión</a>
       </div>
     </nav>
   </header>
@@ -113,15 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 
-  <footer class="footer">
-  <p>© 2025 FitnessPro. Todos los derechos reservados.</p>
-    <div class="social-links">
-      <a href="#">Facebook</a>
-      <a href="#">Instagram</a>
-      <a href="#">Twitter</a>
-    </div>
-    <p><a href="#">Contacto</a> | <a href="#">Términos y Condiciones</a></p>
-  </footer>
+<?php
+  include 'Abajo.php';
+?>
 
   <script src="script.js"></script>
   <script>

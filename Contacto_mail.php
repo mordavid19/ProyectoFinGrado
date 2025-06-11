@@ -2,45 +2,48 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'PHPMailer-master/PHPMailer-master/src/Exception.php';
-require 'PHPMailer-master/PHPMailer-master/src/PHPMailer.php';
-require 'PHPMailer-master/PHPMailer-master/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = htmlspecialchars(trim($_POST["name"]));
-    $email = htmlspecialchars(trim($_POST["email"]));
-    $message = htmlspecialchars(trim($_POST["message"]));
+    $name = htmlspecialchars($_POST['name']);
+    $email = htmlspecialchars($_POST['email']);
+    $message = htmlspecialchars($_POST['message']);
 
+    // Crear instancia de PHPMailer
     $mail = new PHPMailer(true);
 
     try {
+        // Configuración del servidor SMTP (usando Gmail como ejemplo)
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'david.belmonte.moreno@gmail.com';
-        $mail->Password = 'riym vfho roln fsoq';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = 25;
+        $mail->Username = 'jorgeandresbacho@gmail.com'; // Tu correo Gmail
+        $mail->Password = 'xhfn kevg ojvk mtgc'; // Contraseña de aplicación (no tu contraseña normal)
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
 
-        $mail->SMTPOptions = [
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            ]
-        ];
+        // Remitente y destinatario
+        $mail->setFrom('jorgeandresbacho@gmail.com', 'FitnessPro');
+        $mail->addAddress($email); // Correo del usuario
 
-        $mail->setFrom('david.belmonte.moreno@gmail.com', $name);
-        $mail->addAddress('david.belmonte.moreno@gmail.com');
-        $mail->Subject = 'Mensaje del formulario';
-        $mail->Body    = "Nombre: $name\nCorreo visitante: $email\n\nMensaje:\n$message";
+        // Contenido del correo
+        $mail->isHTML(false); // Correo en texto plano
+        $mail->Subject = "Confirmacion de tu mensaje - FitnessPro";
+        $mail->Body = "Hola $name,\n\nHemos recibido tu mensaje:\n$message\n\nGracias por contactarnos. Te responderemos pronto. ¡Un saludo desde FitnessPro!\n\nEquipo FitnessPro";
 
+        // Enviar correo
         $mail->send();
-        echo 'Mensaje enviado correctamente.';
+        header("Location: index.php?success=1");
+        exit();
     } catch (Exception $e) {
-        echo "No se pudo enviar el mensaje. Error: {$mail->ErrorInfo}";
+        error_log("Error al enviar correo: {$mail->ErrorInfo}");
+        header("Location: index.php?error=1");
+        exit();
     }
 } else {
-    echo "Método no permitido.";
+    header("Location: index.php");
+    exit();
 }
 ?>
