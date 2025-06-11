@@ -23,10 +23,10 @@ $resultado = $conn->query($sql);
 </head>
 <body>
   <header class="header">
-    <h1 class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
+    <h1 class="logo"><a href="admin.php" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
     <nav class="nav">
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="admin.php" class="nav-link">Inicio</a>
         <a href="Alta_Admin.php" class="nav-link">Alta Admin</a>
         <a href="obsvcn_Admin" class="nav-link">Consultar Observaciones</a>
         <a href="register.php" class="nav-link">Alta Usuario</a>
