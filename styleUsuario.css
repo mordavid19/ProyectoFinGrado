@@ -74,9 +74,11 @@ header {
 .main-layout {
     flex: 1;
     display: flex;
-    align-items: flex-start; /* sube el contenido */
-    justify-content: center;
-    padding-top: 160px;
+    align-items: flex-start;
+
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-content: space-between;
 }
 
 .grid-container {
@@ -408,4 +410,18 @@ header {
 
 .unsubscribe-btn:hover {
     background-color: #cc0000;
+}
+
+
+.form-container textarea,
+.form-container select,
+.form-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    margin: 10px 0 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    resize: vertical;
 }

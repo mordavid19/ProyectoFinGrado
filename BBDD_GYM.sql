@@ -481,6 +481,14 @@ INNER JOIN tr_usuarios_pesos usupeso ON usu.id_usuario = usupeso.id_usuario
 INNER JOIN tr_pesos pes ON usupeso.id_peso = pes.id_peso;
 
 
+create view vista_rutina as 
+SELECT d.nombre as dia, e.nombre as ejercicio, dr.series as series , dr.repeticiones as repeticiones, dr.peso as peso, usu.dni
+          FROM Tr_Rutinas r
+          JOIN Tm_Dias d ON r.id_dia = d.id_dia
+          JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
+          JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
+          JOIN Tr_usuarios usu on (usu.id_usuario = r.id_usuario);
+
 
 
 

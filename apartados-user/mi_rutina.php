@@ -9,21 +9,12 @@ if (!isset($_SESSION['usuario'])) {
 
 $dni = $_SESSION['usuario'];
 
-$stmt = $conn->prepare("SELECT id_usuario FROM Tr_usuarios WHERE dni = ?");
-$stmt->bind_param("s", $dni);
-$stmt->execute();
-$stmt->bind_result($id_usuario);
-$stmt->fetch();
-$stmt->close();
 
-$query = "SELECT d.nombre as dia, e.nombre as ejercicio, dr.series, dr.repeticiones, dr.peso
-          FROM Tr_Rutinas r
-          JOIN Tm_Dias d ON r.id_dia = d.id_dia
-          JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
-          JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
-          WHERE r.id_usuario = ?";
+$query = "SELECT dia, ejercicio,series, repeticiones, peso
+          FROM vista_rutina 
+          WHERE dni = ?";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_usuario);
+$stmt->bind_param("s", $dni);
 $stmt->execute();
 $result = $stmt->get_result();
 
