@@ -7,8 +7,46 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-$usuario = $_SESSION['usuario'];
+$usuario = $_SESSION['usuario']; // Este debería contener al menos el DNI o permitir obtenerlo
+ // Asegúrate que 'dni' exista en $_SESSION['usuario']
+
+$titulo = $_POST['titulo'] ?? '';
+$descripcion = $_POST['descripcion'] ?? '';
+$tipoIncidencia = $_POST['tipo'] ?? '';
+
+if (empty($usuario) || empty($titulo) || empty($descripcion) || empty($tipoIncidencia)) {
+    echo "Error: Todos los campos son obligatorios.";
+    exit();
+}
+
+// Llamar al procedimiento almacenado
+$stmt = $conn->prepare("CALL Crear_Incidencia(?, ?, ?, ?, @resultado)");
+$stmt->bind_param("sssi", $usuario, $titulo, $descripcion, $tipoIncidencia);
+
+if ($stmt->execute()) {
+    $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
+
+    switch ($resultado) {
+        case 0:
+            echo "✅ Incidencia registrada correctamente.";
+            break;
+        case -1:
+            echo "❌ Error: Usuario no encontrado.";
+            break;
+        case -2:
+            echo "❌ Error: Datos inválidos.";
+            break;
+        default:
+            echo "⚠️ Error desconocido. Código: $resultado";
+    }
+} else {
+    echo "⚠️ Error al ejecutar el procedimiento.";
+}
+
+$stmt->close();
+$conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
