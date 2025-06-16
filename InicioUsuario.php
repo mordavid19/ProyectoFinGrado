@@ -42,7 +42,7 @@ $usuario = $_SESSION['usuario']; // Aquí tienes el nombre o correo del usuario
         </div>
       </div>
 
-      <div class="card">Incidencias/Recomendaciones</div>
+      <a href="apartados-user/incidencia_usuario.php" class="card">Abrir Incidencias </a>
       <a href="apartados-user/mi_rutina.php" class="card">Crear rutina</a>
       <a href="apartados-user/peso_usuario.php" class="card">Progreso de peso</a>
     </div>

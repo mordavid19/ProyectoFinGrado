@@ -74,7 +74,7 @@ if ($usuario && isset($usuario['Cantidad'])) {
       <?php endif; ?>
     </div>
     <?php if ($subscription): ?>
-      <a class="change-plan-btn" href="#" onclick="this.closest('.plan-container').querySelector('form').submit()">Cambiar plan</a>
+      <a class="plan" href="#" onclick="this.closest('.plan-container').querySelector('form').submit()">Cambiar plan</a>
       <a class="unsubscribe-btn" href="#" onclick="confirmUnsubscribe()">Desapuntarse</a>
     <?php endif; ?>
   </div>

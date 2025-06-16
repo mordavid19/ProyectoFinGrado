@@ -1,8 +1,14 @@
 <?php
 include 'config.php';
-include 'Arriba.php';
 
+session_start();
 $error_message = '';
+
+if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
+    include 'Arriba_Admin.php';
+} else {
+    include 'Arriba.php';
+}
 
 $precioSeleccionado = 30;
 if (isset($_GET['precio']) && in_array((int)$_GET['precio'], [30, 90, 150])) {

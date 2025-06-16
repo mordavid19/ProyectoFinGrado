@@ -7,7 +7,7 @@ DROP VIEW IF EXISTS vista_Usuarios;
 DROP PROCEDURE IF EXISTS Registro_Usuario;
 
 -- Eliminar tablas en orden correcto por claves foráneas
-DROP TABLE IF EXISTS Tr_Observaciones;
+DROP TABLE IF EXISTS Tr_Incidencias;
 DROP TABLE IF EXISTS Tr_Usuario_Actividades;
 DROP TABLE IF EXISTS Tr_Pagos;
 DROP TABLE IF EXISTS Tr_Usuarios;
@@ -119,16 +119,14 @@ CREATE TABLE Tr_Staff (
 );
 
 
-create table Tr_Observaciones(id_observacion smallint auto_increment primary key,
+create table Tr_Incidencias(id_observacion smallint auto_increment primary key,
 							titulo varchar(20) not null,
                             descripcion TEXT not null,
                             id_tipo_incidencia smallint not null,
                             fecha_incidencia datetime not null,
 							id_usuario smallint not null,
-                            id_staff smallint not null,
                             foreign key (id_tipo_incidencia) references Tm_Tipo_Incidencias(id_tipo_incidencia),
-                            foreign key (id_usuario) references Tr_Usuarios(id_usuario),
-                            foreign key (id_staff) references Tr_Staff(id_staff)
+                            foreign key (id_usuario) references Tr_Usuarios(id_usuario)
 							);
 
 DELIMITER //
@@ -394,6 +392,58 @@ END;
 DELIMITER ;
 
 
+DELIMITER //
+
+CREATE PROCEDURE Crear_Incidencia (
+    IN _dni VARCHAR(9),
+    IN _titulo VARCHAR(20),
+    IN _descripcion TEXT,
+    in _tipoIncidencia int,
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE _id_usuario SMALLINT;
+    -- Validaciones básicas de campos vacíos o nulos
+    IF _dni IS NULL OR _dni ="" OR
+       _titulo IS NULL OR _titulo ="" OR
+       _descripcion IS NULL OR _descripcion ="" or
+       _tipoIncidencia is null or _tipoIncidencia =""then
+        SET _resultado = -2; -- Datos inválidos
+    ELSE
+        -- Buscar id_usuario por DNI
+        SELECT id_usuario INTO _id_usuario
+        FROM Tr_Usuarios
+        WHERE dni = _dni;
+
+        -- Validar existencia de usuario
+        IF _id_usuario IS NOT NULL THEN
+            -- Insertar incidencia
+            INSERT INTO Tr_Incidencias (
+                titulo,
+                descripcion,
+                id_tipo_incidencia,
+                fecha_incidencia,
+                id_usuario
+            )
+            VALUES (
+                _titulo,
+                _descripcion,
+                _tipoIncidencia,
+                NOW(),
+                _id_usuario
+            );
+
+            SET _resultado = 0; -- Éxito
+            
+		else 
+        
+        set _resultado = -1;  -- Usuario no encontrado
+        END IF;
+    END IF;
+END;
+//
+
+DELIMITER ;
 
 
 
@@ -445,18 +495,17 @@ JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
 JOIN Tm_Grupos_Musculares gm ON e.id_grupo_muscular = gm.id_grupo_muscular;
 
 
-Create view vista_observaciones as
+Create view vista_Incidencias as
 
 	select usu.email as Correo_Usuario,
-			obs.id_observacion as ID,
-            obs.titulo AS Titulo,
-            obs.descripcion as Descripcion,
-            obs.fecha_incidencia as Fecha_Incidencia,
+			inc.id_observacion as ID,
+            inc.titulo AS Titulo,
+            inc.descripcion as Descripcion,
+            inc.fecha_incidencia as Fecha_Incidencia,
             tipinc.nombre as Tipo
 	from Tr_usuarios usu
-	inner join Tr_observaciones obs on (usu.id_usuario = obs.id_usuario)
-	inner join Tr_Staff staff on(obs.id_staff = staff.id_staff)
-	inner join Tm_tipo_incidencias tipinc on(obs.id_tipo_incidencia=tipinc.id_tipo_incidencia);
+	inner join Tr_Incidencias inc on (usu.id_usuario = inc.id_usuario)
+	inner join Tm_tipo_incidencias tipinc on(inc.id_tipo_incidencia=tipinc.id_tipo_incidencia);
 
 
 
@@ -480,6 +529,14 @@ FROM Tr_usuarios AS usu
 INNER JOIN tr_usuarios_pesos usupeso ON usu.id_usuario = usupeso.id_usuario
 INNER JOIN tr_pesos pes ON usupeso.id_peso = pes.id_peso;
 
+
+create view vista_rutina as 
+SELECT d.nombre as dia, e.nombre as ejercicio, dr.series as series , dr.repeticiones as repeticiones, dr.peso as peso, usu.dni
+          FROM Tr_Rutinas r
+          JOIN Tm_Dias d ON r.id_dia = d.id_dia
+          JOIN Tr_Detalle_Rutina dr ON r.id_rutina = dr.id_rutina
+          JOIN Tr_Ejercicios e ON dr.id_ejercicio = e.id_ejercicio
+          JOIN Tr_usuarios usu on (usu.id_usuario = r.id_usuario);
 
 
 
@@ -596,9 +653,9 @@ INSERT INTO Tr_Usuario_Actividades (id_actividad, id_horario, id_usuario) VALUES
 (3, 2, 2);
 
 
-INSERT INTO Tr_Observaciones (titulo, descripcion, id_tipo_incidencia, fecha_incidencia, id_usuario, id_staff) VALUES
-('Falta clase', 'El usuario no asistió a su clase del lunes.', 2, NOW(), 1, 1),
-('Dolor lumbar', 'El usuario reportó molestia después del remo.', 1, NOW(), 2, 1);
+INSERT INTO Tr_Incidencias (titulo, descripcion, id_tipo_incidencia, fecha_incidencia, id_usuario) VALUES
+('Falta clase', 'El usuario no asistió a su clase del lunes.', 2, NOW(), 1),
+('Dolor lumbar', 'El usuario reportó molestia después del remo.', 1, NOW(), 2);
 
 
 
