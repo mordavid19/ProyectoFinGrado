@@ -7,46 +7,47 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-$usuario = $_SESSION['usuario']; // Este debería contener al menos el DNI o permitir obtenerlo
- // Asegúrate que 'dni' exista en $_SESSION['usuario']
+$usuario = $_SESSION['usuario'];
+$mensaje = ''; // Variable para mostrar mensajes
 
-$titulo = $_POST['titulo'] ?? '';
-$descripcion = $_POST['descripcion'] ?? '';
-$tipoIncidencia = $_POST['tipo'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $titulo = $_POST['titulo'] ?? '';
+    $descripcion = $_POST['descripcion'] ?? '';
+    $tipoIncidencia = $_POST['tipo'] ?? '';
 
-if (empty($usuario) || empty($titulo) || empty($descripcion) || empty($tipoIncidencia)) {
-    echo "Error: Todos los campos son obligatorios.";
-    exit();
-}
+    if (empty($usuario) || empty($titulo) || empty($descripcion) || empty($tipoIncidencia)) {
+        $mensaje = "❌ Error: Todos los campos son obligatorios.";
+    } else {
+        $stmt = $conn->prepare("CALL Crear_Incidencia(?, ?, ?, ?, @resultado)");
+        $stmt->bind_param("sssi", $usuario, $titulo, $descripcion, $tipoIncidencia);
 
-// Llamar al procedimiento almacenado
-$stmt = $conn->prepare("CALL Crear_Incidencia(?, ?, ?, ?, @resultado)");
-$stmt->bind_param("sssi", $usuario, $titulo, $descripcion, $tipoIncidencia);
+        if ($stmt->execute()) {
+            $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
 
-if ($stmt->execute()) {
-    $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
+            switch ($resultado) {
+                case 0:
+                    // Obtener nombre del tipo de incidencia
+                    $tipoNombreResult = $conn->query("SELECT nombre FROM Tm_Tipo_Incidencias WHERE id_tipo_incidencia = $tipoIncidencia");
+                    $tipoNombre = $tipoNombreResult ? $tipoNombreResult->fetch_assoc()['nombre'] : 'Desconocido';
+                    $mensaje = "✅ Incidencia registrada correctamente. Tipo: <strong>$tipoNombre</strong>";
+                    break;
+                case -1:
+                    $mensaje = "❌ Error: Usuario no encontrado.";
+                    break;
+                case -2:
+                    $mensaje = "❌ Error: Datos inválidos.";
+                    break;
+                default:
+                    $mensaje = "⚠️ Error desconocido. Código: $resultado";
+            }
+        } else {
+            $mensaje = "⚠️ Error al ejecutar el procedimiento.";
+        }
 
-    switch ($resultado) {
-        case 0:
-            echo "✅ Incidencia registrada correctamente.";
-            break;
-        case -1:
-            echo "❌ Error: Usuario no encontrado.";
-            break;
-        case -2:
-            echo "❌ Error: Datos inválidos.";
-            break;
-        default:
-            echo "⚠️ Error desconocido. Código: $resultado";
+        $stmt->close();
     }
-} else {
-    echo "⚠️ Error al ejecutar el procedimiento.";
 }
-
-$stmt->close();
-$conn->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -63,9 +64,16 @@ $conn->close();
     <a class="logout-btn" href="../logout.php">Cerrar sesión</a>
   </header>
 
-  <div class="form-container" style="margin:  auto;">
+  <div class="form-container" style="margin: auto;">
     <h3>Formulario de Incidencia</h3>
-    <form action="procesar_incidencia.php" method="POST">
+
+    <?php if (!empty($mensaje)): ?>
+      <div class="mensaje-resultado" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+        <?= $mensaje ?>
+      </div>
+    <?php endif; ?>
+
+    <form method="POST">
       <label for="titulo">Título</label>
       <input type="text" id="titulo" name="titulo" required maxlength="50" />
 
