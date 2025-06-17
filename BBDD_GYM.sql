@@ -131,7 +131,7 @@ create table Tr_Incidencias(id_observacion smallint auto_increment primary key,
 
 DELIMITER //
 
-CREATE PROCEDURE Renovar_Pagos(
+CREATE PROCEDURE Primer_Pago(
     IN _id_usuario INT,
     IN _cantidadPago INT
 
@@ -163,6 +163,39 @@ BEGIN
         _cantidadPago,
         _id_usuario
     );
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE PROCEDURE Renovar_Pago(
+    IN _id_usuario INT,
+    IN _cantidadPago INT
+
+)
+BEGIN
+    DECLARE _fecha_fin DATETIME;
+    
+    -- Calcular la fecha de finalización según la cantidad de pago
+    IF _cantidadPago = 30 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 MONTH);
+    ELSEIF _cantidadPago = 90 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 3 MONTH);
+    ELSEIF _cantidadPago = 150 THEN
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL 1 YEAR);
+    ELSE
+        -- Por defecto, usar proporcional: cada 30 unidades = 1 mes
+        SET _fecha_fin = DATE_ADD(NOW(), INTERVAL FLOOR(_cantidadPago / 30) MONTH);
+    END IF;
+
+    -- Insertar el pago
+			UPDATE Tr_Pagos
+            SET
+                fecha_pago = NOW(),
+                fecha_fin_pago = _fecha_fin,
+                cantidad = _cantidadPago
+            WHERE id_usuario = _id_usuario;
 END;
 //
 
@@ -444,6 +477,90 @@ END;
 //
 
 DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE BajaPlan (
+    IN _dni VARCHAR(9),
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE _estado INT;
+
+    -- Verifica si el usuario existe y su estado actual
+    SELECT activo INTO _estado
+    FROM Tr_Usuarios
+    WHERE dni = _dni
+    LIMIT 1;
+
+    -- Si no existe ningún usuario con ese DNI
+    IF _estado IS NULL THEN
+        SET _resultado = -1;  -- Usuario no encontrado
+
+    -- Si ya está inactivo
+    ELSEIF _estado = 0 THEN
+        SET _resultado = 0;   -- Usuario ya estaba inactivo
+
+    -- Si está activo
+    ELSE
+        UPDATE Tr_Usuarios
+        SET activo = 0
+        WHERE dni = _dni;
+
+        SET _resultado = 0;   -- Usuario desactivado correctamente
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE ModificarPlan (
+    IN _dni VARCHAR(9),
+    IN _nueva_cantidad INT,
+    OUT _resultado INT
+)
+BEGIN
+    DECLARE _id_usuario SMALLINT;
+    DECLARE _cantidad_actual INT;
+
+    -- Obtener el id del usuario
+    SELECT id_usuario INTO _id_usuario
+    FROM Tr_Usuarios
+    WHERE dni = _dni
+    LIMIT 1;
+
+    -- Verificar si el usuario existe
+    IF _id_usuario IS NULL THEN
+        SET _resultado = -1; -- Usuario no encontrado
+    ELSE
+        -- Obtener la cantidad actual del plan
+        SELECT cantidad INTO _cantidad_actual
+        FROM Tr_Pagos
+        WHERE id_usuario = _id_usuario
+        LIMIT 1;
+
+        -- Verificar si la nueva cantidad es menor a la actual
+        IF _cantidad_actual IS NOT NULL AND _nueva_cantidad < _cantidad_actual THEN
+            SET _resultado = -1; -- Nueva cantidad menor que la actual
+        ELSE
+            -- Llamar procedimiento para renovar el pago
+            CALL Renovar_Pago(_id_usuario, _nueva_cantidad);
+            SET _resultado = 0; -- Modificación exitosa
+        END IF;
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
 
 
 

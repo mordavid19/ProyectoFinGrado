@@ -1,6 +1,6 @@
 <?php
 include 'config.php'; // Aquí debes tener la conexión $conn (mysqli)
-include 'Arriba_Admin.php';
+include 'cabeceras-piePagina/Arriba_Admin.php';
 // Inicializar mensaje de error/éxito
 $error_message = '';
 $success_message = '';
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <?php
-  include 'Abajo.php';
+  include 'cabeceras-piePagina/Abajo.php';
 ?>
 
   <script src="script.js"></script>
