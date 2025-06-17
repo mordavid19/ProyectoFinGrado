@@ -5,9 +5,9 @@ session_start();
 $error_message = '';
 
 if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
-    include 'Arriba_Admin.php';
+    include 'cabeceras-piePagina/Arriba_Admin.php';
 } else {
-    include 'Arriba.php';
+    include 'cabeceras-piePagina/Arriba.php';
 }
 
 $precioSeleccionado = 30;
@@ -147,7 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </main>
 <?php
-  include 'Abajo.php';
+  include 'cabeceras-piePagina/Abajo.php';
 ?>
 
   <script src="script.js"></script>

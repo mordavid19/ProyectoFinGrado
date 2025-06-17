@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'config.php';
-include 'Arriba.php';
+include 'cabeceras-piePagina/Arriba.php';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </main>
 
 <?php
-  include 'Abajo.php';
+  include 'cabeceras-piePagina/Abajo.php';
 ?>
 
   <script src="script.js"></script>

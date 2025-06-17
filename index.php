@@ -1,5 +1,5 @@
 <?php
-  include 'Arriba.php';
+  include 'cabeceras-piePagina/Arriba.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -118,7 +118,7 @@
     </section>
   </main>
 <?php
-  include 'Abajo.php';
+  include 'cabeceras-piePagina/Abajo.php';
 ?>
 
   <script>

@@ -1,6 +1,6 @@
 <?php
 include 'config.php';
-include 'Arriba_Admin.php';
+include 'cabeceras-piePagina/Arriba_Admin.php';
 session_start();
 
 
