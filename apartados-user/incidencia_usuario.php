@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../config.php';
-
+include '../cabeceras-piePagina/Arriba_Usuario2.php';
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../login.php");
     exit();
@@ -49,20 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Enviar Incidencia - FitnessPro</title>
-  <link rel="stylesheet" href="../styleUsuario.css" />
-</head>
-<body>
-  <header>
-    <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
-    <h1 class="welcome-title">Enviar Incidencia</h1>
-    <a class="logout-btn" href="../logout.php">Cerrar sesión</a>
-  </header>
+<header>
+  <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
+  <h1 class="welcome-title">Crear Incidencia</h1>
+  <a class="logout-btn" href="../publico/logout.php">Cerrar sesión</a>
+</header>
 
   <div class="form-container" style="margin: auto;">
     <h3>Formulario de Incidencia</h3>

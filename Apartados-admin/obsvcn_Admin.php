@@ -1,11 +1,11 @@
 <?php
-include 'config.php';
-include 'cabeceras-piePagina/Arriba_Admin.php';
+include '../config.php';
+include '../cabeceras-piePagina/Arriba_Admin.php';
 session_start();
 
 
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    header('Location: login.php');
+    header('Location: ../apartados-userlogin.php');
     exit();
 }
 

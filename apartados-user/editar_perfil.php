@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config.php';
+include '../cabeceras-piePagina/Arriba_Usuario2.php';
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../login.php");
@@ -82,22 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mi Perfil - FitnessPro</title>
-  <link rel="stylesheet" href="../styleUsuario.css" />
-</head>
-<body>
-
-  <header>
-    <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
-    <h1 class="welcome-title">Mis datos</h1>
-    <a class="logout-btn" href="../logout.php">Cerrar sesión</a>
-  </header>
-
+<header>
+  <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
+  <h1 class="welcome-title">Tu Perfil</h1>
+  <a class="logout-btn" href="../publico/logout.php">Cerrar sesión</a>
+</header>
   <main class="main-layout">
     <div class="profile-view-container">
       <h2>Datos del Usuario</h2>

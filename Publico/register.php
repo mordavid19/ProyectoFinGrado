@@ -1,15 +1,16 @@
 <?php
-include 'config.php';
-
+include '../config.php';
 session_start();
 $error_message = '';
 
+
 if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
-    include 'cabeceras-piePagina/Arriba_Admin.php';
+    include '../cabeceras-piePagina/Arriba_Admin.php';
 } else {
-    include 'cabeceras-piePagina/Arriba.php';
+    include '../cabeceras-piePagina/Arriba.php';
 }
 
+// Plan seleccionado
 $precioSeleccionado = 30;
 if (isset($_GET['precio']) && in_array((int)$_GET['precio'], [30, 90, 150])) {
     $precioSeleccionado = (int)$_GET['precio'];
@@ -19,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Recoger datos del formulario
     $nombre = $_POST['nombre'];
     $apellido1 = $_POST['apellido1'];
-    $apellido2 = $_POST['apellido2'];
+    $apellido2 = isset($_POST['apellido2']) ? $_POST['apellido2'] : ''; // permitir vacío
     $dni = $_POST['dni'];
     $email = $_POST['email'];
     $telefono = $_POST['telefono'];
@@ -29,17 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cantidadPago = isset($_POST['cantidadPago']) ? (int)$_POST['cantidadPago'] : 30;
 
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $telefono_param = !empty($telefono) ? (int)$telefono : null;
+    $telefono_param = (!empty($telefono) && preg_match('/^[6789]\d{8}$/', $telefono)) ? (int)$telefono : null;
 
-    // Primero definimos la variable para el parámetro OUT
-    $conn->query("SET @resultado = 0;");
+    try {
+        // Inicializar variable de salida
+        $conn->query("SET @resultado = -999;");
 
-    $stmt = $conn->prepare("CALL Registro_Usuario(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @resultado)");
-
-    if (!$stmt) {
-        $error_message = "Error en la preparación: " . $conn->error;
-    } else {
-        // Bind de parámetros IN (9 parámetros)
+        // Preparar llamada al procedimiento
+        $stmt = $conn->prepare("CALL Registro_Usuario(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @resultado)");
         $stmt->bind_param(
             "ssssssissi",
             $nombre,
@@ -54,27 +52,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $cantidadPago
         );
 
-        if ($stmt->execute()) {
-            $stmt->close();
+        $stmt->execute();
+        $stmt->close();
 
-            // Recuperamos el valor del OUT desde la variable @resultado
-            $resultado = $conn->query("SELECT @resultado AS resultado")->fetch_assoc()['resultado'];
+        // Recuperar el valor de salida
+        $result = $conn->query("SELECT @resultado AS resultado");
+        $row = $result->fetch_assoc();
+        $resultado = $row['resultado'];
 
-            if ($resultado == 0) {
-                header("Location: login.php");
-                exit();
-            } elseif ($resultado == -1) {
-                $error_message = "Error: Campos vacíos.";
-            } elseif ($resultado == -2) {
-                $error_message = "Error: Edad insuficiente.";
-            } elseif ($resultado == -3) {
-                $error_message = "Error: Email inválido.";
-            } else {
-                $error_message = "Error desconocido. Código: $resultado";
-            }
+        // Interpretar resultado
+        if ($resultado == 0) {
+            header("Location: login.php");
+            exit();
+        } elseif ($resultado == -1) {
+            $error_message = "Error: Campos vacíos.";
+        } elseif ($resultado == -2) {
+            $error_message = "Error: Edad insuficiente (mínimo 16 años).";
+        } elseif ($resultado == -3) {
+            $error_message = "Error: Email inválido.";
         } else {
-            $error_message = "Error al ejecutar el procedimiento: " . $stmt->error;
+            $error_message = "Error desconocido. Código: $resultado";
         }
+
+    } catch (mysqli_sql_exception $e) {
+        $error_message = "Error al ejecutar el procedimiento: " . $e->getMessage();
     }
 }
 ?>
@@ -85,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro - FitnessPro</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -147,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </main>
 <?php
-  include 'cabeceras-piePagina/Abajo.php';
+  include '../cabeceras-piePagina/Abajo.php';
 ?>
 
   <script src="script.js"></script>
