@@ -31,3 +31,43 @@ Aplicación web desarrollada como proyecto de fin de grado para la gestión de u
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/tu_usuario/proyecto_gym.git
+
+# Estructura de carpetas
+
+.
+├── **Apartados-admin/**
+│   ├── admin.php
+│   ├── Alta_Admin.php
+│   └── obsycn_Admin.php
+├── **Apartados-user/**
+│   ├── bajaPlan.php
+│   ├── cambioPlan.php
+│   ├── editar_perfil.php
+│   ├── EliminarGuardarRT.php
+│   ├── incidencia_usuario.php
+│   ├── mi_rutina.php
+│   ├── peso_usuario.php
+│   └── plan_usuario.php
+├── **Cabeceras-piePagina/**
+│   ├── Abajo.php
+│   ├── Arriba_Admin.php
+│   ├── Arriba_Usuario.php
+│   ├── Arriba_Usuario2.php
+│   └── Arriba.php
+├── **Database/**
+├── **img/**
+├── **PHPMailer/**
+├── **Publico/**
+│   ├── login.php
+│   ├── logout.php
+│   └── register.php
+├── admin-style.css
+├── config.php
+├── Contacto_mail.php
+├── index.php
+├── InicioUsuario.php
+├── README.md
+├── script.js
+├── style.css
+├── styleRutina.css
+└── styleUsuario.css
