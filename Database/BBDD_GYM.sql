@@ -42,9 +42,9 @@ CREATE TABLE Tr_Usuarios (
     id_usuario smallint AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(20) NOT NULL,
     apellido1 VARCHAR(20) NOT NULL,
-    apellido2 VARCHAR(20) NOT NULL,
+    apellido2 VARCHAR(20) ,
     dni varchar(9) not null,
-	password varchar(255) not null,
+	password varchar(256) not null,
     email VARCHAR(100) UNIQUE NOT NULL,
     telefono int not null,
     fecha_nacimiento DATE not null,
@@ -196,6 +196,11 @@ BEGIN
                 fecha_fin_pago = _fecha_fin,
                 cantidad = _cantidadPago
             WHERE id_usuario = _id_usuario;
+            
+            Update Tr_Usuarios 
+            set 
+				activo = 1
+			where id_usuario = _id_usuario;
 END;
 //
 
@@ -265,7 +270,7 @@ BEGIN
         
          SET _id_usuario = LAST_INSERT_ID();
 
-        CALL Renovar_Pagos(_id_usuario, _cantidadPago);
+        CALL Primer_Pago(_id_usuario, _cantidadPago);
   
         SET _resultado = 0; -- Éxito
 
@@ -528,9 +533,10 @@ CREATE PROCEDURE ModificarPlan (
 BEGIN
     DECLARE _id_usuario SMALLINT;
     DECLARE _cantidad_actual INT;
+    DECLARE _estado INT;
 
-    -- Obtener el id del usuario
-    SELECT id_usuario INTO _id_usuario
+    -- Obtener el id y estado del usuario
+    SELECT id_usuario, activo INTO _id_usuario, _estado
     FROM Tr_Usuarios
     WHERE dni = _dni
     LIMIT 1;
@@ -545,11 +551,11 @@ BEGIN
         WHERE id_usuario = _id_usuario
         LIMIT 1;
 
-        -- Verificar si la nueva cantidad es menor a la actual
-        IF _cantidad_actual IS NOT NULL AND _nueva_cantidad < _cantidad_actual THEN
-            SET _resultado = -1; -- Nueva cantidad menor que la actual
+        -- Si el usuario está activo, y quiere bajar a un plan menor, no se permite
+        IF _estado = 1 AND _cantidad_actual IS NOT NULL AND _nueva_cantidad < _cantidad_actual THEN
+            SET _resultado = -1; -- Cambio inválido (downgrade no permitido para usuarios activos)
         ELSE
-            -- Llamar procedimiento para renovar el pago
+            -- Llamar procedimiento para renovar el pago (esto puede reactivar al usuario si está inactivo)
             CALL Renovar_Pago(_id_usuario, _nueva_cantidad);
             SET _resultado = 0; -- Modificación exitosa
         END IF;
@@ -558,6 +564,7 @@ END;
 //
 
 DELIMITER ;
+
 
 
 
@@ -576,7 +583,8 @@ SELECT
 	TIMESTAMPDIFF(YEAR, usu.fecha_nacimiento, CURDATE()) AS edad,
     usu.genero as Genero,
     usu.fecha_registro as Fecha_Registro,
-    pag.cantidad as Cantidad
+    pag.cantidad as Cantidad,
+    usu.activo as Estado
 FROM Tr_Usuarios usu
 inner join Tr_Pagos pag on (usu.id_usuario = pag.id_usuario);
 
@@ -704,9 +712,7 @@ VALUES
 ('Ana', 'Martinez','Gonzalez',"12345678B","$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO", 'ana@gym.com', '123123123', '1985-09-23', 'F'),
 ('Luis', 'Fernandez','Gonzalez',"12345678C", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'luis@gym.com', '321321432', '1993-01-30', 'M'),
 ('Maria', 'Lopez','Gonzalez',"12345678D", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'maria@gym.com', '555123456', '1997-11-11', 'F'),
-('Pedro', 'Ramirez','Gonzalez',"12345678F", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'pedro@gym.com', '444333222', '2000-07-07', 'M'),
-("David","Belmonte","Moreno","71822694L","$2y$10$Vr6g8kDYXMWqPPLeV6iWj.M6IywpPsXmAXrfhnhhwyiSwhbv3qs8G","david@gmail.com","634512787","2005-10-19","M")
-;
+('Pedro', 'Ramirez','Gonzalez',"12345678F", "$2y$10$nipFq.xgp4PRevbs238uDeied8hsr6/3YdgDio5382xDquoAsSDdO",'pedro@gym.com', '444333222', '2000-07-07', 'M');
 
 
 -- Pagos ficticios para usuarios existentes

@@ -1,6 +1,6 @@
 <?php
-include 'config.php';
-include 'cabeceras-piePagina/Arriba_Admin.php';
+include '../config.php';
+include '../cabeceras-piePagina/Arriba_Admin.php';
 session_start();
 
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
@@ -81,7 +81,7 @@ $resultado = $conn->query($sql);
   </main>
 
 <?php
-  include 'cabeceras-piePagina/Abajo.php';
+  include '../cabeceras-piePagina/Abajo.php';
 ?>
 </body>
 </html>

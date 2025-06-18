@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config.php';
+include '../cabeceras-piePagina/Arriba_Usuario2.php';
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../login.php");
@@ -72,20 +73,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Mis Pesos</title>
-    <link rel="stylesheet" href="../styleUsuario.css">
-</head>
-<body>
 
-<header>
-   <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
-    <h1 class="welcome-title">MI PESO</h1>
-    <a href="../logout.php" class="logout-btn">Cerrar sesión</a>
-</header>
 
 <?php if ($success_message): ?>
     <div class="success-message" style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 10px; margin: 15px; border-radius: 4px;">
@@ -99,6 +87,11 @@ $result = $stmt->get_result();
     </div>
 <?php endif; ?>
 
+<header>
+  <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
+  <h1 class="welcome-title">Tu Peso</h1>
+  <a class="logout-btn" href="../publico/logout.php">Cerrar sesión</a>
+</header>
 <div class="main-layout">
     <!-- Formulario de nuevo peso -->
     <div class="form-container">

@@ -1,9 +1,15 @@
 <?php
-include 'config.php'; // Aquí debes tener la conexión $conn (mysqli)
-include 'cabeceras-piePagina/Arriba_Admin.php';
+include '../config.php'; // Aquí debes tener la conexión $conn (mysqli)
+include '../cabeceras-piePagina/Arriba_Admin.php';
 // Inicializar mensaje de error/éxito
 $error_message = '';
 $success_message = '';
+session_start();
+
+if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
+    header('Location: ../apartados-userlogin.php');
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombreUsuario = trim($_POST['nombreUsuario'] ?? '');
@@ -91,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <?php
-  include 'cabeceras-piePagina/Abajo.php';
+  include '../cabeceras-piePagina/Abajo.php';
 ?>
 
-  <script src="script.js"></script>
+  <script src="../script.js"></script>
   <script>
     document.querySelector('.hamburger').addEventListener('click', () => {
       document.querySelector('.nav-links').classList.toggle('active');

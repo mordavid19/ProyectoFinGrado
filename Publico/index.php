@@ -1,5 +1,5 @@
 <?php
-  include 'cabeceras-piePagina/Arriba.php';
+  include '../cabeceras-piePagina/Arriba.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -7,7 +7,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gimnasio FitnessPro</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -94,9 +94,9 @@
     <section class="gallery">
       <h2>Nuestras Instalaciones</h2>
       <div class="gallery-row">
-        <img src="img/gym1.jpg" alt="Gimnasio FitnessPro" />
-        <img src="img/gym2.png" alt="Clases grupales" />
-        <img src="img/gym3.jpg" alt="Equipos modernos" />
+        <img src="../img/gym1.jpg" alt="Gimnasio FitnessPro" />
+        <img src="../img/gym2.png" alt="Clases grupales" />
+        <img src="../img/gym3.jpg" alt="Equipos modernos" />
       </div>
     </section>
 
@@ -118,7 +118,7 @@
     </section>
   </main>
 <?php
-  include 'cabeceras-piePagina/Abajo.php';
+  include '../cabeceras-piePagina/Abajo.php';
 ?>
 
   <script>

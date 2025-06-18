@@ -1,7 +1,6 @@
 <?php
 session_start();
 include '../config.php';
-
 if (!isset($_SESSION['usuario'])) {
     http_response_code(403);
     exit("No autorizado");

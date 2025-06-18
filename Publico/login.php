@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'config.php';
-include 'cabeceras-piePagina/Arriba.php';
+include '../config.php';
+include '../cabeceras-piePagina/Arriba.php';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Contraseña correcta - admin
                 $_SESSION['usuario'] = $usuario;
                 $_SESSION['rol'] = 'admin';
-                header("Location: admin.php");
+                header("Location: ../apartados-admin/admin.php");
                 exit();
             }
         }
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($passwordIngresada, $hash)) {
                 // Contraseña correcta - cliente
                 $_SESSION['usuario'] = $usuario;
-                header("Location: InicioUsuario.php");
+                header("Location: ../InicioUsuario.php");
                 exit();
             }
         }
@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Iniciar Sesión - FitnessPro</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </main>
 
 <?php
-  include 'cabeceras-piePagina/Abajo.php';
+  include '../cabeceras-piePagina/Abajo.php';
 ?>
 
   <script src="script.js"></script>

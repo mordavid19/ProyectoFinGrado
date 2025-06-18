@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config.php';
+include '../cabeceras-piePagina/Arriba_Usuario2.php';
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../login.php");
@@ -25,23 +26,12 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Mi Rutina</title>
-    <link rel="stylesheet" href="../styleUsuario.css">
-    <link rel="stylesheet" href="../styleRutina.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-</head>
-<body>
 
 <header>
-   <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
-   <h1 class="welcome-title">MI RUTINA</h1>
-   <a href="../logout.php" class="logout-btn">Cerrar sesión</a>
+  <a class="volver-btn" href="../InicioUsuario.php">Volver</a>
+  <h1 class="welcome-title">Tu Rutina</h1>
+  <a class="logout-btn" href="../publico/logout.php">Cerrar sesión</a>
 </header>
-
 <div class="rutina-container" id="rutinaContainer">
     <?php
     $dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
