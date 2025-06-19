@@ -70,6 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "Error: Edad insuficiente (mínimo 16 años).";
         } elseif ($resultado == -3) {
             $error_message = "Error: Email inválido.";
+        } elseif ($resultado == -5) {
+            $error_message = "Error: DNI ya existente";
         } else {
             $error_message = "Error desconocido. Código: $resultado";
         }

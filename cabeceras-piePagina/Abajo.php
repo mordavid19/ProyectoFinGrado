@@ -15,7 +15,7 @@
       <a href="#">Instagram</a>
       <a href="#">Twitter</a>
     </div>
-    <p><a href="contact.html">Contacto</a> | <a href="terms.html">Términos y Condiciones</a></p>
+    <p><a href="#">Contacto</a> | <a href="#">Términos y Condiciones</a></p>
   </footer>
 </body>
 </html>

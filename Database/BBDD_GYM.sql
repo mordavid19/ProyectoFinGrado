@@ -219,12 +219,14 @@ CREATE PROCEDURE Registro_Usuario(
     IN _telefono INT,
     IN _fecha_nacimiento DATE,
     IN _genero CHAR(1),
-    IN _cantidadPago int,
+    IN _cantidadPago INT,
     OUT _resultado INT
 )
 BEGIN
     DECLARE edad INT;
     DECLARE _id_usuario INT;
+    DECLARE _existe_dni INT DEFAULT 0;
+
     BEGIN
         SET _resultado = -4; -- Error inesperado
     END;
@@ -258,6 +260,16 @@ BEGIN
             LEAVE main;
         END IF;
 
+        -- Verificar si el DNI ya existe
+        SELECT COUNT(*) INTO _existe_dni
+        FROM Tr_Usuarios
+        WHERE dni = _dni;
+
+        IF _existe_dni > 0 THEN
+            SET _resultado = -5; -- DNI duplicado
+            LEAVE main;
+        END IF;
+
         -- Insertar usuario
         INSERT INTO Tr_Usuarios (
             nombre, apellido1, apellido2, dni, password,
@@ -267,11 +279,11 @@ BEGIN
             _nombre, _apellido1, _apellido2, _dni, _password,
             _email, _telefono, _fecha_nacimiento, _genero
         );
-        
-         SET _id_usuario = LAST_INSERT_ID();
+
+        SET _id_usuario = LAST_INSERT_ID();
 
         CALL Primer_Pago(_id_usuario, _cantidadPago);
-  
+
         SET _resultado = 0; -- Éxito
 
     END main;
@@ -280,6 +292,7 @@ END;
 //
 
 DELIMITER ;
+
 
 
 
@@ -722,8 +735,7 @@ VALUES
   (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 2),
   (NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 30, 3),
   (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 4),
-  (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5),
-  (NOW(),date_add(now(), INTERVAL 3 MONTH),30 ,6);
+  (NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 50, 5);
 
 
 INSERT INTO Tm_Actividades (nombre) VALUES

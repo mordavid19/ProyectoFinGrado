@@ -14,7 +14,7 @@
       <div class="hamburger">☰</div>
       <div class="nav-links">
         <a href="../index.php" class="nav-link">Inicio</a>
-        <a href="Publico/login.php" class="nav-link">Ya eres socio</a>
+        <a href="login.php" class="nav-link">Ya eres socio</a>
       </div>
     </nav>
   </header>

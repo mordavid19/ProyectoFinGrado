@@ -11,7 +11,7 @@
 </head>
 <body>
   <header class="header">
-    <h1 class="logo"><a href="admin.php" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
+    <h1 class="logo"><a href="../apartados-admin/admin.php" style="text-decoration: none; color: inherit;">Admin - FitnessPro</a></h1>
     <nav class="nav">
       <div class="nav-links">
         <a href="../apartados-admin/admin.php" class="nav-link">Inicio</a>
