@@ -4,16 +4,13 @@ Aplicación web desarrollada como proyecto de fin de grado para la gestión de u
 
 ---
 
-## 📚 Tabla de Contenidos
+## 🙍 Integrantes del Grupo
 
-- [✨ Características](#-características)
-- [🛠️ Instalación](#️-instalación)
-- [🚀 Tecnologías Utilizadas](#-tecnologías-utilizadas)
-- [🧪 Pruebas y Uso](#-pruebas-y-uso)
-- [🤝 Contribuciones](#-contribuciones)
-- [📄 Licencia](#-licencia)
+  - Jesus Orellana Ramirez
+  - Jorge Andres Bacho 
+  - David Belmonte Moreno
 
----
+
 
 ## ✨ Características
 
@@ -31,6 +28,18 @@ Aplicación web desarrollada como proyecto de fin de grado para la gestión de u
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/tu_usuario/proyecto_gym.git
+2. **Instalar el wampp en el ordenador:**
+
+3. **Como importar el archivo ubicado en la carpeta de Database:**
+    Desde  un navegador cualquiera poner localhost y acceder a PhpMyAdmin 5.2.1
+    Donde hay que poner de usuario root sin contraseña
+    Y luego buscar el boton importar para subir el archivo sql ubicado en la carpeta
+    DataBase.
+
+4. **Como acceder a la pagina web:**
+    Una vez instalado el localhost sube la carpeta del proyecto en esta ruta 
+    C:\wamp64\www
+    Y poner esta ruta en la url http://localhost/PROYECTOFINGRADO
 
 # Estructura de carpetas
 
